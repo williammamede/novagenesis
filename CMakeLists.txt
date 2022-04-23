@@ -642,3 +642,8 @@ add_executable(NGConverter
         NGConverter/src/NGConverter.cpp)
 
 target_link_libraries (NGConverter LINK_PRIVATE Common)
+
+add_executable(NGApi
+        NGApi/src/listen.cpp)
+
+target_link_libraries (NGApi LINK_PRIVATE Common)
