@@ -1,0 +1,56 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "PGCS Debugger",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/mnt/c/Users/williamsm/Documents/personal_workspace/novagenesis/cmake-build-debug/PGCS",
+            "args": ["/mnt/c/Users/williamsm/Documents/personal_workspace/novagenesis/IO/PGCS/", "0", "Intra_Domain", "-lc"],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb"
+        },
+        {
+            "name": "NRNCS Debugger",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/mnt/c/Users/williamsm/Documents/personal_workspace/novagenesis/build/NRNCS",
+            "args": ["/mnt/c/Users/williamsm/Documents/personal_workspace/novagenesis/IO/NRNCS/"],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb"
+        },
+        {
+            "name": "ContentApp1 Debugger",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/mnt/c/Users/williamsm/Documents/personal_workspace/novagenesis/cmake-build-debug/ContentApp",
+            "args": ["/mnt/c/Users/williamsm/Documents/personal_workspace/novagenesis/IO/Repository1/", "Repository"],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb"
+        },
+        {
+            "name": "ContentApp2 Debugger",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/mnt/c/Users/williamsm/Documents/personal_workspace/novagenesis/cmake-build-debug/ContentApp",
+            "args": ["/mnt/c/Users/williamsm/Documents/personal_workspace/novagenesis/IO/Source1/", "Source"],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb"
+        }
+    ]
+}
