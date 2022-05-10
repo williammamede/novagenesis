@@ -32,9 +32,12 @@
 #ifndef _HT_H
 #include "HT.h"
 #endif
+
+#include "rapidjson/filewritestream.h"
 #include "rapidjson/document.h"     // rapidjson's DOM-style API
 #include "rapidjson/writer.h" 		// for stringify JSON
 #include <stdio.h>
+#include <cstdio>
 
 using namespace rapidjson;
 
@@ -77,13 +80,18 @@ HTListBind01::Run (Message *_ReceivedMessage, CommandLine *_PCL, vector<Message 
   arrCompleteHash.SetArray();
   for (unsigned int j = 0; j < 19; j++)
   {
-	  Value chash;
+	  Value obj(kObjectType);
+	  Value strIndex;
+	  Value val;
 	  if (PHT->Bindings != 0)
 	  {
 		  if (PHT->Bindings[j].size() > 0)
 		  {
-			  chash.SetString("Cat");
-			  arrCompleteHash.PushBack(chash, doc.GetAllocator());
+			  val.SetInt(PHT->Bindings[j].size());
+			  strIndex.SetString(std::to_string(j).c_str(), doc.GetAllocator());
+			  obj.AddMember(strIndex, val, doc.GetAllocator());
+
+			  arrCompleteHash.PushBack(obj, doc.GetAllocator());
 			  PB->S << Offset << "Cat [" << j << "] = " << PHT->Bindings[j].size() << endl;
 
 #ifdef DEBUG
@@ -127,10 +135,14 @@ HTListBind01::Run (Message *_ReceivedMessage, CommandLine *_PCL, vector<Message 
   /* Insert */
   doc.AddMember("CAT", arrCompleteHash, doc.GetAllocator());
 
+  FILE *fp = fopen("output.json", "wb");
+  char writeBuffer[65536];
+  FileWriteStream os(fp, writeBuffer, sizeof(writeBuffer));
+
   /* Convert Json */
-  StringBuffer sb;
-  Writer<StringBuffer> writer(sb);
+  Writer<FileWriteStream> writer(os);
   doc.Accept(writer); // Accept() traverses the DOM and generates Handler events.
+  fclose(fp);
 
   //PB->S << Offset <<  "(Done)" << endl << endl << endl;
 
