@@ -469,6 +469,50 @@ int HT::DeleteAction (string _LN)
   return Status;
 }
 
+void HT::GenerateJSONReport(string path)
+{
+	S << "Generating JSON report for " << GetLegibleName() << "." << endl;
+	Iterator it1;
+	string PreviousKey = "";
+	if (Bindings !=0)
+	{
+		ofstream file;
+		file.open(path.c_str() + GetLegibleName() + "bindings.json");
+		file << "{" << endl;
+		file << "\"" << GetLegibleName() << "\": [" << endl;
+		for (unsigned int i = 0; i < MAX_CATEGORIES; i++)
+		{
+			if (i != 0)
+			{
+				file << "," << endl;
+			}
+			file << "{" << endl;
+			file << "\"Category\": " << i << "," << endl;
+			file << "\"Bindings\": [" << endl;
+			if (Bindings[i].size() > 0)
+			{
+				for (it1 = Bindings[i].begin(); it1 != Bindings[i].end(); it1++)
+				{
+					if (it1 != Bindings[i].begin())
+					{
+						file << "," << endl;
+					}
+					file << "{" << endl;
+					file << "\"Key\": " << it1->first << "," << endl;
+					file << "\"Values\": " << it1->second << endl;
+					file << "}";
+				}
+			}
+			file << "]" << endl;
+			file << "}" << endl;
+		}
+		file << endl;
+		file << "]" << endl;
+		file << "}" << endl;
+		file.close();
+	}
+}
+
 // Store a binding in the Bindings container
 int HT::StoreBinding (unsigned int _Cat, const string _Key, vector<string> *_Values)
 {

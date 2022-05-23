@@ -380,6 +380,9 @@ class Process {
   // List local HT block name bindings
   void ListBindings ();
 
+  // Generates a json representation of the HT bindings
+  void GenerateJSONReport(string _Path, string _LN);
+
   // *************************************************************************************
   // Functions to discover IDs on local process HT data.
   // *************************************************************************************

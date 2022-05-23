@@ -101,6 +101,9 @@ class HT : public Block {
   // Delete an Action
   int DeleteAction (string _LN);
 
+  // Generates a json representation of the HT bindings
+  void GenerateJSONReport (string _Path);
+
   // ------------------------------------------------------------------------------------------------------------------------------
   // Core functions
   // ------------------------------------------------------------------------------------------------------------------------------
