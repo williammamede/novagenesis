@@ -113,6 +113,7 @@ HTListBind01::Run (Message *_ReceivedMessage, CommandLine *_PCL, vector<Message 
 
 			  cout << endl
 				   << endl;
+#endif
 		  }
 		  else
 		  {
