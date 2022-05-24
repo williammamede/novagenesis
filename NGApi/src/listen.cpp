@@ -55,18 +55,32 @@ void respond(const http_request &request, const status_code &status, const json:
     request.reply(status, resp);
 }
 
-string getBindingsReport(string requestedBindings)
+// Returns the Bindings for the given request
+web::json::value getBindingsReport(string requestedBindings)
 {
+    web::json::value output;
     // TODO: improve the way path is handled
     string path = "/mnt/c/Users/williamsm/Documents/personal_workspace/novagenesis/IO/NRNCS/" + requestedBindings + "bindings.json";
-    stringstream ss;
     uclog << "Reading bindings from " << requestedBindings << endl;
-    // TODO: create a way to validte the bindings
-    std::ifstream file(path);
-    ss << file.rdbuf();
-    return ss.str();
+    try
+    {
+        std::ifstream file(path);
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        file.close();
+        output = json::value::parse(buffer.str());
+    }
+    catch (const json::json_exception &e)
+    {
+        output = json::value::string("Error reading bindings from " + requestedBindings);
+        uclog << "Error reading bindings from " << requestedBindings << endl;
+        uclog << e.what() << endl;
+    }
+
+    return output;;
 }
 
+// main function responsible for handling requests
 int main()
 {
     // Synchronously bind the listener to all nics.
@@ -83,22 +97,22 @@ int main()
     // Handle incoming requests.
     uclog << U("Setting up.") << endl;
     listener.support(methods::GET, [](http_request req)
-                     {
-		auto http_get_vars = uri::split_query(req.request_uri().query());
+        {
+            auto http_get_vars = uri::split_query(req.request_uri().query());
 
-		auto requestedBinding = http_get_vars.find(U("requestedBinding"));
+            auto requestedBinding = http_get_vars.find(U("requestedBinding"));
 
-		if (requestedBinding == end(http_get_vars)) {
-			auto err = U("No requestedBinding found in the query string. [e.g ?requestedBinding=<HT|NR|GW>]");
-			uclog << err << endl;
-			respond(req, status_codes::BadRequest, json::value::string(err));
-			return;
-		}
+            if (requestedBinding == end(http_get_vars)) {
+                auto err = U("No requestedBinding found in the query string. [e.g ?requestedBinding=<HT|NR|GW>]");
+                uclog << err << endl;
+                respond(req, status_codes::BadRequest, json::value::string(err));
+                return;
+            }
 
-		auto bindingName = requestedBinding->second;
-		uclog << U("Received requestedBinding: ") << bindingName << endl;
-		respond(req, status_codes::OK, json::value::string(getBindingsReport(bindingName)));
-                     });
+            auto bindingName = requestedBinding->second;
+            uclog << U("Received requestedBinding: ") << bindingName << endl;
+            respond(req, status_codes::OK, getBindingsReport(bindingName)); 
+        });
 
     // Wait while the listener does the heavy lifting.
     uclog << U("Waiting for incoming connection...") << endl;

@@ -498,8 +498,8 @@ void HT::GenerateJSONReport(string path)
 						file << "," << endl;
 					}
 					file << "{" << endl;
-					file << "\"Key\": " << it1->first << "," << endl;
-					file << "\"Values\": " << it1->second << endl;
+					file << "\"Key\": \"" << it1->first << "\"," << endl;
+					file << "\"Value\": \"" << it1->second << "\"" << endl;
 					file << "}";
 				}
 			}
