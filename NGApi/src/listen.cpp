@@ -56,12 +56,12 @@ void respond(const http_request &request, const status_code &status, const json:
 }
 
 // Returns the Bindings for the given request
-web::json::value getBindingsReport(string requestedBindings)//rename to block
+web::json::value getBindingsReport(string requestedBlock)
 {
     web::json::value output;
     // TODO: improve the way path is handled
-    string path = "/mnt/c/Users/williamsm/Documents/personal_workspace/novagenesis/IO/NRNCS/" + requestedBindings + "bindings.json";
-    uclog << "Reading bindings from " << requestedBindings << endl;
+    string path = "/mnt/c/Users/williamsm/Documents/personal_workspace/novagenesis/IO/NRNCS/" + requestedBlock + "bindings.json";
+    uclog << "Reading bindings from " << requestedBlock << endl;
     try
     {
         std::ifstream file(path);
@@ -72,8 +72,8 @@ web::json::value getBindingsReport(string requestedBindings)//rename to block
     }
     catch (const json::json_exception &e)
     {
-        output = json::value::string("Error reading bindings from " + requestedBindings);
-        uclog << "Error reading bindings from " << requestedBindings << endl;
+        output = json::value::string("Error reading bindings from " + requestedBlock);
+        uclog << "Error reading bindings from " << requestedBlock << endl;
         uclog << e.what() << endl;
     }
 
@@ -109,9 +109,9 @@ int main()
                 return;
             }
 
-            auto bindingName = requestedBinding->second;
-            uclog << U("Received requestedBinding: ") << bindingName << endl;
-            respond(req, status_codes::OK, getBindingsReport(bindingName)); 
+            auto blockName = requestedBinding->second;
+            uclog << U("Received requestedBinding: ") << blockName << endl;
+            respond(req, status_codes::OK, getBindingsReport(blockName)); 
         });
 
     // Wait while the listener does the heavy lifting.
