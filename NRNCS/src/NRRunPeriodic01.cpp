@@ -165,13 +165,11 @@ int NRRunPeriodic01::Exposition ()
   NR *PNR = 0;
   Block *PHTB = 0;
   CommandLine *PCL = 0;
-  HT *PHT = 0;
 
   PNR = (NR *)PB;
 
   PHTB = (Block *)PNR->PHT;
   
-  PHT = (HT *)PB;
 #ifdef DEBUG
 
   PB->S << Offset << "(1. Expose NRNCS names.)" << endl;
@@ -243,7 +241,7 @@ int NRRunPeriodic01::Exposition ()
 
 
   // Generates the JSON report
-  PB->PP->GenerateJSONReport ("/mnt/c/Users/williamsm/Documents/personal_workspace/novagenesis/IO/NRNCS/", "HT");
+  PB->PP->GenerateJSONReport ();
 
   Status = OK;
 

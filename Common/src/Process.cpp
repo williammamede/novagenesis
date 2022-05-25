@@ -2053,16 +2053,16 @@ int Process::GetHTBindingValues(unsigned int _Category, string _Key, vector<stri
 	return Status;
 }
 
-void Process::GenerateJSONReport(string _Path, string _LN)
+void Process::GenerateJSONReport()
 {
 	Block *PHTB=0;
 
-	GetBlock(_LN,PHTB);
+	GetBlock("HT",PHTB);
 
 	if (PHTB != 0)
 	{
 		HT *PHT = (HT *)PHTB;
-		PHT->GenerateJSONReport(_Path);
+		PHT->GenerateJSONReport(Path);
 	}
 }
 

@@ -381,7 +381,7 @@ class Process {
   void ListBindings ();
 
   // Generates a json representation of the HT bindings
-  void GenerateJSONReport(string _Path, string _LN);
+  void GenerateJSONReport();
 
   // *************************************************************************************
   // Functions to discover IDs on local process HT data.

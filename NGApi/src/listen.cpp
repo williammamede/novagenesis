@@ -56,7 +56,7 @@ void respond(const http_request &request, const status_code &status, const json:
 }
 
 // Returns the Bindings for the given request
-web::json::value getBindingsReport(string requestedBindings)
+web::json::value getBindingsReport(string requestedBindings)//rename to block
 {
     web::json::value output;
     // TODO: improve the way path is handled
