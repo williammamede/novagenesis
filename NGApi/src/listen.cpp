@@ -40,6 +40,7 @@
 // On POSIX platforms, all strings are narrow
 #define uclog std::clog
 #endif // endif _UTF16_STRINGS
+#define BASE std::getenv("BASE")
 
 using namespace std;
 using namespace web::http::experimental::listener;
@@ -59,8 +60,7 @@ void respond(const http_request &request, const status_code &status, const json:
 web::json::value getBindingsReport(string requestedBlock)
 {
     web::json::value output;
-    // TODO: improve the way path is handled
-    string path = "/mnt/c/Users/williamsm/Documents/personal_workspace/novagenesis/IO/NRNCS/" + requestedBlock + "bindings.json";
+    string path = std::string(BASE) + "/IO/NRNCS/" + requestedBlock + "bindings.json";
     uclog << "Reading bindings from " << requestedBlock << endl;
     try
     {
