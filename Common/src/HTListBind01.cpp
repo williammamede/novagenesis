@@ -33,14 +33,6 @@
 #include "HT.h"
 #endif
 
-#include "rapidjson/filewritestream.h"
-#include "rapidjson/document.h"     // rapidjson's DOM-style API
-#include "rapidjson/writer.h" 		// for stringify JSON
-#include <stdio.h>
-#include <cstdio>
-
-using namespace rapidjson;
-
 ////#define DEBUG
 
 HTListBind01::HTListBind01 (string _LN, Block *_PB, MessageBuilder *_PMB) : Action (_LN, _PB, _PMB)
@@ -56,10 +48,6 @@ HTListBind01::~HTListBind01 ()
 int
 HTListBind01::Run (Message *_ReceivedMessage, CommandLine *_PCL, vector<Message *> &ScheduledMessages, Message *&InlineResponseMessage)
 {
-  /* Init JSON Object */
-  Document doc;
-  doc.SetObject();
-
   int Status = OK;
 
   HT *PHT = 0;
@@ -75,74 +63,50 @@ HTListBind01::Run (Message *_ReceivedMessage, CommandLine *_PCL, vector<Message 
 
   PB->S << endl << Offset << "(Hash Tables Size)" << endl;
 
-  /* Populate Json */
-  Value arrCompleteHash;
-  arrCompleteHash.SetArray();
   for (unsigned int j = 0; j < 19; j++)
-  {
-	  Value obj(kObjectType);
-	  Value strIndex;
-	  Value val;
+	{
 	  if (PHT->Bindings != 0)
-	  {
-		  if (PHT->Bindings[j].size() > 0)
-		  {
-			  val.SetInt(PHT->Bindings[j].size());
-			  strIndex.SetString(std::to_string(j).c_str(), doc.GetAllocator());
-			  obj.AddMember(strIndex, val, doc.GetAllocator());
-
-			  arrCompleteHash.PushBack(obj, doc.GetAllocator());
-			  PB->S << Offset << "Cat [" << j << "] = " << PHT->Bindings[j].size() << endl;
+		{
+		  if (PHT->Bindings[j].size () > 0)
+			{
+			  PB->S << Offset << "Cat [" << j << "] = " << PHT->Bindings[j].size () << endl;
 
 #ifdef DEBUG
 
-			  for (it1 = PHT->Bindings[j].begin(); it1 != PHT->Bindings[j].end(); it1++)
-			  {
-				  if ((*it1).first != PreviousKey)
+			  for (it1=PHT->Bindings[j].begin(); it1!= PHT->Bindings[j].end(); it1++ )
 				  {
-					  PB->S << endl
-							<< Offset << (*it1).first << "    " << '\t' << (*it1).second;
-				  }
-				  else
-				  {
-					  PB->S << "    " << '\t' << (*it1).second;
+					  if ((*it1).first != PreviousKey)
+						  {
+							  PB->S << endl << Offset << (*it1).first << "    " << '\t' << (*it1).second;
+						  }
+					  else
+						  {
+							  PB->S << "    " <<  '\t' << (*it1).second;
+						  }
+
+					  PreviousKey=(*it1).first;
 				  }
 
-				  PreviousKey = (*it1).first;
-			  }
-
-			  cout << endl
-				   << endl;
+			  cout<<endl<<endl;
 #endif
-		  }
+
+			}
 		  else
-		  {
-			  // PB->S << Offset <<  "Empty container..." << endl;
-		  }
+			{
+			  //PB->S << Offset <<  "Empty container..." << endl;
+			}
 
 		  Status = OK;
-	  }
+		}
 	  else
-	  {
+		{
 		  PB->S << Offset << "(ERROR: Invalid Bindings pointer)";
 
 		  Status = ERROR;
 
 		  break;
-	  }
-  }
-
-  /* Insert */
-  doc.AddMember("CAT", arrCompleteHash, doc.GetAllocator());
-
-  FILE *fp = fopen("output.json", "wb");
-  char writeBuffer[65536];
-  FileWriteStream os(fp, writeBuffer, sizeof(writeBuffer));
-
-  /* Convert Json */
-  Writer<FileWriteStream> writer(os);
-  doc.Accept(writer); // Accept() traverses the DOM and generates Handler events.
-  fclose(fp);
+		}
+	}
 
   //PB->S << Offset <<  "(Done)" << endl << endl << endl;
 
