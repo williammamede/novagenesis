@@ -60,7 +60,7 @@ void respond(const http_request &request, const status_code &status, const json:
 web::json::value getBindingsReport(string requestedBlock)
 {
     web::json::value output;
-    string path = std::string(BASE) + "/IO/NRNCS/" + requestedBlock + "bindings.json";
+    string path = std::string(BASE) + "/IO/" + requestedBlock + "/HTbindings.json";
     uclog << "Reading bindings from " << requestedBlock << endl;
     try
     {
@@ -103,7 +103,7 @@ int main()
             auto requestedBinding = http_get_vars.find(U("requestedBinding"));
 
             if (requestedBinding == end(http_get_vars)) {
-                auto err = U("No requestedBinding found in the query string. [e.g ?requestedBinding=<HT|NR|GW>]");
+                auto err = U("No requestedBinding found in the query string. [e.g ?requestedBinding=<NRNCS>]");
                 uclog << err << endl;
                 respond(req, status_codes::BadRequest, json::value::string(err));
                 return;
