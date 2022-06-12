@@ -121,3 +121,7 @@ gmon.out
 /cmake-build-debug
 build/*
 IO/*
+
+# NovaGenesis Monitor related #
+######################
+node_modules/*

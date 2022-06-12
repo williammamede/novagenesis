@@ -52,6 +52,8 @@ void respond(const http_request &request, const status_code &status, const json:
     json::value resp;
     resp[U("status")] = json::value::number(status);
     resp[U("response")] = response;
+    // add header access control allow origin
+    resp[U("headers")][U("Access-Control-Allow-Origin")] = json::value::string(U("*"));
 
     request.reply(status, resp);
 }
