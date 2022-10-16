@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --proxy-config proxyconfig.json --poll=2000",
+    "start": "ng serve --proxy-config proxy.config.js --poll=2000",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -11,14 +11,17 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "~13.3.0",
+    "@angular/cdk": "~14.2.5",
     "@angular/common": "~13.3.0",
     "@angular/compiler": "~13.3.0",
     "@angular/core": "~13.3.0",
     "@angular/forms": "~13.3.0",
+    "@angular/material": "~14.2.5",
     "@angular/platform-browser": "~13.3.0",
     "@angular/platform-browser-dynamic": "~13.3.0",
     "@angular/router": "~13.3.0",
-    "rxjs": "~7.5.0",
+    "d3-scale": "^4.0.2",
+    "rxjs": "^6.5.3",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"
   },
@@ -26,6 +29,10 @@
     "@angular-devkit/build-angular": "~13.3.6",
     "@angular/cli": "~13.3.6",
     "@angular/compiler-cli": "~13.3.0",
+    "@swimlane/ngx-charts": "^8.1.0",
+    "@swimlane/ngx-graph": "^8.0.2",
+    "@types/d3": "^7.4.0",
+    "@types/d3-drag": "^3.0.1",
     "@types/jasmine": "~3.10.0",
     "@types/node": "^12.11.1",
     "jasmine-core": "~4.0.0",

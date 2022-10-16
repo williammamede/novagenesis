@@ -53,7 +53,7 @@ void respond(const http_request &request, const status_code &status, const json:
     resp[U("status")] = json::value::number(status);
     resp[U("response")] = response;
     // add header access control allow origin
-    resp[U("headers")][U("Access-Control-Allow-Origin")] = json::value::string(U("*"));
+    resp[U("headers")][U("Access-Control-Allow-Origin")] = json::value::string(U("http://127.0.0.1:10102"));
 
     request.reply(status, resp);
 }
@@ -100,6 +100,10 @@ int main()
     uclog << U("Setting up.") << endl;
     listener.support(methods::GET, [](http_request req)
         {
+            req.headers().add(U("Access-Control-Allow-Origin"), U("*"));
+            req.headers().add(U("Allow"), U("GET, POST, OPTIONS"));
+            req.headers().add(U("Access-Control-Allow-Origin"), U("*"));
+            req.headers().add(U("Access-Control-Allow-Methods"), U("GET, POST, OPTIONS"));
             auto http_get_vars = uri::split_query(req.request_uri().query());
 
             auto requestedBinding = http_get_vars.find(U("requestedBinding"));

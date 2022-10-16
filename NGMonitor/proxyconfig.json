@@ -1,8 +1,0 @@
-{
-    "*": {
-       "target": "http://localhost:10102/",
-       "secure": false,
-       "logLevel": "debug",
-       "changeOrigin": true
-    }
-  }

@@ -8,20 +8,15 @@ import { Observable } from 'rxjs';
 export class GraphAppService {
     constructor(private http: HttpClient) { }
     
-    private url = 'localhost:10102';
+    SERVER_ADRESS = '/api?requestedBinding=NRNCS';
     private header = {
         headers: new HttpHeaders({
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, PATCH, DELETE',
-            'Access-Control-Allow-Headers': 'Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers',
-            'requestedBinding': 'NRNCS'
+            'Content-Type': 'application/json'
         })
     };
 
-
     getData(): Observable<any> {
-        return this.http.get(this.url, this.header)
+        return this.http.get(`${this.SERVER_ADRESS}`)
             .pipe(
                 retry(3),
                 catchError(this.handleError)
