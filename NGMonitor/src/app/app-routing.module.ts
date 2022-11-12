@@ -1,9 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { GraphAppComponent } from './graph-app/graph-app.component';
+import { BindingsComponent } from './bindings/bindings.component';
+import { DataMonitorComponent } from './data-monitor/data-monitor.component';
 
 const routes: Routes = [
-  {path: 'graph', component: GraphAppComponent}
+  {path: 'bindings', component: BindingsComponent},
+  {path: 'nameResolution', component: GraphAppComponent},
+  {path: 'dataTransfer', component: DataMonitorComponent},
 ];
 
 @NgModule({

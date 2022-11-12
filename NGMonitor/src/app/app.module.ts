@@ -15,10 +15,14 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { GraphAppModule } from './graph-app/graph-app.module';
 import { CustomHttpInterceptor } from './http-interceptors/custom-http-interceptor';
+import { BindingsComponent } from './bindings/bindings.component';
+import { DataMonitorComponent } from './data-monitor/data-monitor.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    BindingsComponent,
+    DataMonitorComponent
   ],
   imports: [
     BrowserModule,
