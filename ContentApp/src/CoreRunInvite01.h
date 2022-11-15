@@ -73,6 +73,8 @@ class CoreRunInvite01 : public Action {
   // Run the actions behind a received message
   virtual int
   Run (Message *_ReceivedMessage, CommandLine *_PCL, vector<Message *> &ScheduledMessages, Message *&InlineResponseMessage);
+
+  void createServiceOfferReport (string _OfferFileName);
 };
 
 #endif

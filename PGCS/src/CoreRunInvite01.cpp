@@ -37,6 +37,13 @@
 #include "GW.h"
 #endif
 
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include <stdio.h>
+#include <string.h>
+
+using namespace rapidjson;
+
 CoreRunInvite01::CoreRunInvite01 (string _LN, Block *_PB, MessageBuilder *_PMB) : Action (_LN, _PB, _PMB)
 {
 }
@@ -290,6 +297,9 @@ int CoreRunInvite01::CreateServiceOffer (string &_OfferFileName)
   // Open the file to write
   F1.OpenOutputFile (_OfferFileName, PB->GetPath (), "DEFAULT");
 
+  //   PB->S << Offset << "(Creating the service offer file report)" << endl;
+  createServiceOfferReport(_OfferFileName);
+
   if (Values->size () == 14)
 	{
 	  F1 << "Offer from IoTTestApp" << endl;
@@ -306,3 +316,49 @@ int CoreRunInvite01::CreateServiceOffer (string &_OfferFileName)
   return Status;
 }
 
+/**
+ * @brief This function is used to create the service offer report
+ *  that will be used to provide the offered services.
+ * 
+ * @param _OfferFileName that contains the name of the file that contains the service offer
+ */
+void CoreRunInvite01::createServiceOfferReport(string _OfferFileName)
+{
+		PB->S << "(Creating the service offer report)" << endl;
+
+	ifstream reporFile;
+	reporFile.open(PB->GetPath() + "ServiceOfferReport.json");
+	reporFile.open("ServiceOfferReport.json");
+	string serviceOfferJson;
+	if(reporFile)
+	{
+		string line;
+		while(getline(reporFile,line))
+		{
+			serviceOfferJson += line;
+		}
+		reporFile.close();
+	}
+	else
+	{
+		serviceOfferJson = "{\"ServiceOffer\":[]}";
+	}
+
+	Document document;
+	document.Parse(serviceOfferJson.c_str());
+	Document::MemberIterator itr = document.FindMember("ServiceOffer");
+	Value& serviceOffer = itr->value;
+	Value serviceOfferValue;
+	serviceOfferValue.SetString(_OfferFileName.c_str(),document.GetAllocator());
+	serviceOffer.PushBack(serviceOfferValue,document.GetAllocator());
+
+	PB->S << "(Service offer report created)" << endl;
+	
+	StringBuffer buffer;
+	Writer<StringBuffer> writer(buffer);
+	document.Accept(writer);
+	ofstream reportFile;
+	reportFile.open("ServiceOfferReport.json");
+	reportFile << buffer.GetString();
+	reportFile.close();
+}

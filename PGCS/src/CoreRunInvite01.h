@@ -76,6 +76,8 @@ class CoreRunInvite01 : public Action {
 
   // This function enables you to change the content of the service offer.
   int CreateServiceOffer (string &_OfferFileName);
+
+  void createServiceOfferReport (string _OfferFileName);
 };
 
 #endif
