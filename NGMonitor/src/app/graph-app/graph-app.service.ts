@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 export class GraphAppService {
     constructor(private http: HttpClient) { }
     
-    SERVER_ADRESS = '/api?requestedBinding=NRNCS';
+    SERVER_ADRESS = '/api/bindings?requestedBinding=NRNCS';
     private header = {
         headers: new HttpHeaders({
             'Content-Type': 'application/json'

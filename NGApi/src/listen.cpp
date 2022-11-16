@@ -58,7 +58,12 @@ void respond(const http_request &request, const status_code &status, const json:
     request.reply(status, resp);
 }
 
-// Returns the Bindings for the given request
+/**
+ * @brief Get the Bindings Report object
+ * 
+ * @param requestedBlock The block to get the bindings from
+ * @return web::json::value The bindings report
+ */
 web::json::value getBindingsReport(string requestedBlock)
 {
     web::json::value output;
@@ -82,7 +87,35 @@ web::json::value getBindingsReport(string requestedBlock)
     return output;;
 }
 
-// main function responsible for handling requests
+/**
+ * @brief Get the Service Offers object
+ * 
+ * @return web::json::value The service offers
+ */
+web::json::value getServiceOffers()
+{
+    web::json::value output;
+    string path = std::string(BASE) + "/IO/Source1/ServiceOfferReport.json";
+    uclog << "Reading service offers" << path << endl;
+    try
+    {
+        std::ifstream file(path);
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        file.close();
+        output = json::value::parse(buffer.str());
+    }
+    catch (const json::json_exception &e)
+    {
+        output = json::value::string("Error reading service offers");
+        uclog << "Error reading service offers" << endl;
+        uclog << e.what() << endl;
+    }
+
+    return output;;
+}
+
+
 int main()
 {
     // Synchronously bind the listener to all nics.
@@ -104,20 +137,31 @@ int main()
             req.headers().add(U("Allow"), U("GET, POST, OPTIONS"));
             req.headers().add(U("Access-Control-Allow-Origin"), U("*"));
             req.headers().add(U("Access-Control-Allow-Methods"), U("GET, POST, OPTIONS"));
-            auto http_get_vars = uri::split_query(req.request_uri().query());
 
-            auto requestedBinding = http_get_vars.find(U("requestedBinding"));
+            auto http_uri_sub_dir = req.request_uri().path();
+            uclog << U("Received request for: ") << http_uri_sub_dir << endl;
 
-            if (requestedBinding == end(http_get_vars)) {
-                auto err = U("No requestedBinding found in the query string. [e.g ?requestedBinding=<NRNCS>]");
-                uclog << err << endl;
-                respond(req, status_codes::BadRequest, json::value::string(err));
+            if (http_uri_sub_dir == U("/serviceOffers")) {
+                respond(req, status_codes::OK, getServiceOffers());
                 return;
+            } else if (http_uri_sub_dir == U("/bindings")) {
+                auto http_get_vars = uri::split_query(req.request_uri().query());
+
+                auto requestedBinding = http_get_vars.find(U("requestedBinding"));
+
+                if (requestedBinding == end(http_get_vars)) {
+                    auto err = U("No requestedBinding found in the query string. [e.g ?requestedBinding=<NRNCS>]");
+                    uclog << err << endl;
+                    respond(req, status_codes::BadRequest, json::value::string(err));
+                    return;
+                }
+
+                auto blockName = requestedBinding->second;
+                uclog << U("Received requestedBinding: ") << blockName << endl;
+                respond(req, status_codes::OK, getBindingsReport(blockName));
             }
 
-            auto blockName = requestedBinding->second;
-            uclog << U("Received requestedBinding: ") << blockName << endl;
-            respond(req, status_codes::OK, getBindingsReport(blockName)); 
+            respond(req, status_codes::NotFound, json::value::string(U("URI not found. Try /serviceOffers or /bindings")));
         });
 
     // Wait while the listener does the heavy lifting.
