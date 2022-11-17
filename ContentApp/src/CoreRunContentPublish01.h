@@ -101,6 +101,9 @@ class CoreRunContentPublish01 : public Action {
   // TODO: FIXP/Update - This function has been added to simply content publishing
   // Auxiliary function
   void CreatePublishMessage (double _Time, string _FileName, vector<Tuple *> &_PubNotify, vector<Tuple *> &_SubNotify);
+
+  // Generates a report containing the content published
+  void generatePublishMessageReport (string _FileName, double _Time);
 };
 
 #endif

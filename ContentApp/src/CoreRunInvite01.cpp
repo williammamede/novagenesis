@@ -343,7 +343,7 @@ void CoreRunInvite01::createServiceOfferReport(string _OfferFileName)
 	Writer<StringBuffer> writer(buffer);
 	document.Accept(writer);
 	ofstream reportFile;
-	reportFile.open("ServiceOfferReport.json");
+	reportFile.open(PB->GetPath() + "ServiceOfferReport.json");
 	reportFile << buffer.GetString();
 	reportFile.close();
 }

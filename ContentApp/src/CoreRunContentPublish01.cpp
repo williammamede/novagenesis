@@ -37,6 +37,13 @@
 #include "Core.h"
 #endif
 
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include <stdio.h>
+#include <string.h>
+
+using namespace rapidjson;
+
 //#define DEBUG // To follow message processing
 ////#define DEBUG // To follow message processing regarding traffic profile
 
@@ -152,6 +159,7 @@ CoreRunContentPublish01::Run (Message *_ReceivedMessage, CommandLine *_PCL, vect
 				  PCore->NoPP++;
 
 				  PB->S << Offset << "(Publishing the content " << FileName << ". Publisher counter  " << PCore->NoPP << ". Running time is "<< setprecision(12) << GetTime() <<". )" << endl;
+				  generatePublishMessageReport(FileName, GetTime());
 
 #ifdef DEBUG
 				  PCore->Debug.OpenOutputFile ();
@@ -652,4 +660,48 @@ void CoreRunContentPublish01::CreatePublishMessage (double _Time, string _FileNa
 		  PB->S << Offset << "(ERROR: Invalid size)" << endl;
 		}
 	}
+
+}
+
+void CoreRunContentPublish01::generatePublishMessageReport (string _FileName, double _Time)
+{
+	PB->S << "(Adding file " << _FileName << " to the publish list report)" << endl;
+
+	ifstream reportFile;
+	reportFile.open (PB->GetPath () + "PublishedMessagesReport.json");
+	string reportContent;
+	if(reportFile)
+	{
+		string line;
+		while(getline(reportFile,line))
+		{
+			reportContent += line;
+		}
+		reportFile.close();	
+	}
+	else
+	{
+		reportContent = "{\"PublishedMessages\":[]}";
+	}
+
+	string newReport = "{\"FileName\":\"" + _FileName + "\",\"Time\":" + PB->DoubleToString(_Time) + "}";
+
+	Document document;
+	document.Parse(reportContent.c_str());
+	Document::MemberIterator it = document.FindMember("PublishedMessages");
+	if(it != document.MemberEnd())
+	{
+		Value& array = document["PublishedMessages"];
+		array.PushBack(Value().SetString(newReport.c_str(),document.GetAllocator()),document.GetAllocator());
+	}
+
+	PB->S << "(Published messages report created)" << endl;
+
+	StringBuffer buffer;
+	Writer<StringBuffer> writer(buffer);
+	document.Accept(writer);
+	ofstream newReportFile;
+	newReportFile.open (PB->GetPath () + "PublishedMessagesReport.json");
+	newReportFile << buffer.GetString();
+	newReportFile.close();
 }
