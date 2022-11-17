@@ -25,12 +25,14 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include <cpprest/http_listener.h>
+#include <cpprest/filestream.h>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <thread>
 #include <chrono>
 #include <ctime>
+#include <fstream>
 
 // cpprest provides macros for all streams but std::clog in basic_types.h
 #ifdef _UTF16_STRINGS
@@ -46,6 +48,8 @@ using namespace std;
 using namespace web::http::experimental::listener;
 using namespace web::http;
 using namespace web;
+using namespace utility;
+using namespace concurrency::streams;
 
 void respond(const http_request &request, const status_code &status, const json::value &response)
 {
@@ -56,6 +60,21 @@ void respond(const http_request &request, const status_code &status, const json:
     resp[U("headers")][U("Access-Control-Allow-Origin")] = json::value::string(U("http://127.0.0.1:10102"));
 
     request.reply(status, resp);
+}
+
+void respondImage(const http_request &request, const status_code &status, const string &imagePath)
+{
+    auto fileStream = std::make_shared<Concurrency::streams::ostream>();
+
+    utility::string_t file = imagePath;
+    *fileStream = Concurrency::streams::fstream::open_ostream(file, std::ios::out | std::ios::trunc).get();
+    request.body().read_to_end(fileStream->streambuf()).get();
+    request.reply(status);
+}
+
+void replyImage(const http_request &request, const status_code &status, const concurrency::streams::istream &imageStream)
+{
+    request.reply(status, imageStream, U("image/jpeg"));
 }
 
 /**
@@ -159,6 +178,20 @@ int main()
                 auto blockName = requestedBinding->second;
                 uclog << U("Received requestedBinding: ") << blockName << endl;
                 respond(req, status_codes::OK, getBindingsReport(blockName));
+            } else if (http_uri_sub_dir == U("/transmitedImage")) {
+                auto http_get_vars = uri::split_query(req.request_uri().query());
+                auto requestedImage = http_get_vars.find(U("requestedImage"));
+
+                if (requestedImage == end(http_get_vars)) {
+                    auto err = U("No requestedImage found in the query string. [e.g ?requestedImage=<Image name>]");
+                    uclog << err << endl;
+                    respond(req, status_codes::BadRequest, json::value::string(err));
+                    return;
+                }
+
+                auto imageName = requestedImage->second;
+                uclog << U("Received requestedImage: ") << imageName << endl;
+                respondImage(req, status_codes::OK, std::string(BASE) + "/IO/Source1/" + imageName);
             }
 
             respond(req, status_codes::NotFound, json::value::string(U("URI not found. Try /serviceOffers or /bindings")));
