@@ -103,7 +103,7 @@ web::json::value getBindingsReport(string requestedBlock)
         uclog << e.what() << endl;
     }
 
-    return output;;
+    return output;
 }
 
 /**
@@ -131,7 +131,35 @@ web::json::value getServiceOffers()
         uclog << e.what() << endl;
     }
 
-    return output;;
+    return output;
+}
+
+/**
+ * @brief Get the Published messages report
+ * 
+ * @return web::json::value The published messages report
+ */
+web::json::value getPublishedMessages()
+{
+    web::json::value output;
+    string path = std::string(BASE) + "/IO/Source1/PublishedMessagesReport.json";
+    uclog << "Reading published messages" << path << endl;
+    try
+    {
+        std::ifstream file(path);
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        file.close();
+        output = json::value::parse(buffer.str());
+    }
+    catch (const json::json_exception &e)
+    {
+        output = json::value::string("Error reading published messages");
+        uclog << "Error reading published messages" << endl;
+        uclog << e.what() << endl;
+    }
+
+    return output;
 }
 
 
@@ -192,6 +220,8 @@ int main()
                 auto imageName = requestedImage->second;
                 uclog << U("Received requestedImage: ") << imageName << endl;
                 respondImage(req, status_codes::OK, std::string(BASE) + "/IO/Source1/" + imageName);
+            } else if (http_uri_sub_dir == U("/publishedMessages")) {
+                respond(req, status_codes::OK, getPublishedMessages());
             }
 
             respond(req, status_codes::NotFound, json::value::string(U("URI not found. Try /serviceOffers or /bindings")));

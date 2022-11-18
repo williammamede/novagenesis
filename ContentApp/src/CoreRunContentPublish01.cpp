@@ -688,12 +688,10 @@ void CoreRunContentPublish01::generatePublishMessageReport (string _FileName, do
 
 	Document document;
 	document.Parse(reportContent.c_str());
-	Document::MemberIterator it = document.FindMember("PublishedMessages");
-	if(it != document.MemberEnd())
-	{
-		Value& array = document["PublishedMessages"];
-		array.PushBack(Value().SetString(newReport.c_str(),document.GetAllocator()),document.GetAllocator());
-	}
+	
+	Value& publishedMessages = document["PublishedMessages"];
+
+	publishedMessages.PushBack(Value().SetString(newReport.c_str(), document.GetAllocator()), document.GetAllocator());
 
 	PB->S << "(Published messages report created)" << endl;
 
