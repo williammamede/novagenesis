@@ -53,13 +53,7 @@ using namespace concurrency::streams;
 
 void respond(const http_request &request, const status_code &status, const json::value &response)
 {
-    json::value resp;
-    resp[U("status")] = json::value::number(status);
-    resp[U("response")] = response;
-    // add header access control allow origin
-    resp[U("headers")][U("Access-Control-Allow-Origin")] = json::value::string(U("http://127.0.0.1:10102"));
-
-    request.reply(status, resp);
+    request.reply(status, response);
 }
 
 void respondImage(const http_request &request, const status_code &status, const string &imagePath)
