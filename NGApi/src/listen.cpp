@@ -26,6 +26,8 @@
 */
 #include <cpprest/http_listener.h>
 #include <cpprest/filestream.h>
+#include <cpprest/rawptrstream.h>
+
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -56,14 +58,21 @@ void respond(const http_request &request, const status_code &status, const json:
     request.reply(status, response);
 }
 
-void respondImage(const http_request &request, const status_code &status, const string &imagePath)
+void respondImage(http_request &request, const status_code &status, const string &imagePath)
 {
-    auto fileStream = std::make_shared<Concurrency::streams::ostream>();
+    /* auto fileStream = std::make_shared<Concurrency::streams::ostream>();
 
     utility::string_t file = imagePath;
     *fileStream = Concurrency::streams::fstream::open_ostream(file, std::ios::out | std::ios::trunc).get();
-    request.body().read_to_end(fileStream->streambuf()).get();
-    request.reply(status);
+    request.set_body(*fileStream,  */
+    http_response response(status);
+    response.headers().add(U("Content-Type"), U("image/png"));
+    response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
+    
+    auto fileStream = std::make_shared<Concurrency::streams::istream>(Concurrency::streams::file_stream<uint8_t>::open_istream(imagePath).get());
+    response.set_body(*fileStream);
+    
+    request.reply(response);
 }
 
 void replyImage(const http_request &request, const status_code &status, const concurrency::streams::istream &imageStream)
