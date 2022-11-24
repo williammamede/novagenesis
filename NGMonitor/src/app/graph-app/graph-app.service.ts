@@ -9,11 +9,6 @@ export class GraphAppService {
     constructor(private http: HttpClient) { }
     
     SERVER_ADRESS = '/api/bindings?requestedBinding=NRNCS';
-    private header = {
-        headers: new HttpHeaders({
-            'Content-Type': 'application/json'
-        })
-    };
 
     getData(): Observable<any> {
         return this.http.get(`${this.SERVER_ADRESS}`)

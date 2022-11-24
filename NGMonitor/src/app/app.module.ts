@@ -10,24 +10,26 @@ import { MatToolbarModule } from  '@angular/material/toolbar';
 import { MatSidenavModule } from  '@angular/material/sidenav';
 import { MatListModule } from  '@angular/material/list';
 import { MatIconModule } from  '@angular/material/icon';
+import { MatGridListModule } from  '@angular/material/grid-list';
+import { MatCardModule } from  '@angular/material/card';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { GraphAppModule } from './graph-app/graph-app.module';
+import { DataMonitorModule } from './data-monitor/data-monitor.module';
 import { CustomHttpInterceptor } from './http-interceptors/custom-http-interceptor';
 import { BindingsComponent } from './bindings/bindings.component';
-import { DataMonitorComponent } from './data-monitor/data-monitor.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    BindingsComponent,
-    DataMonitorComponent
+    BindingsComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     GraphAppModule,
+    DataMonitorModule,
     HttpClientModule,
     NgxGraphModule,
     CommonModule,
@@ -39,7 +41,9 @@ import { DataMonitorComponent } from './data-monitor/data-monitor.component';
     MatSidenavModule,
     MatListModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatGridListModule,
+    MatCardModule
   ],
   providers: [{
     provide: HTTP_INTERCEPTORS,
