@@ -33,6 +33,13 @@
 #include "HT.h"
 #endif
 
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include <stdio.h>
+#include <string.h>
+
+using namespace rapidjson;
+
 HTInfoPayload01::HTInfoPayload01 (string _LN, Block *_PB, MessageBuilder *_PMB) : Action (_LN, _PB, _PMB)
 {
 }
@@ -82,6 +89,8 @@ HTInfoPayload01::Run (Message *_ReceivedMessage, CommandLine *_PCL, vector<Messa
 					  _ReceivedMessage->SetPayloadFilePath (PayloadPath);
 					  _ReceivedMessage->SetPayloadFileOption ("BINARY");
 					  _ReceivedMessage->ConvertPayloadFromCharArrayToFile ();
+
+					  generateReceivedMessageReport(Values.at (0), _ReceivedMessage->GetInstantiationTime());
 
 					  // Note: The payload is going to be saved as a file on the specified path
 
@@ -134,4 +143,47 @@ HTInfoPayload01::Run (Message *_ReceivedMessage, CommandLine *_PCL, vector<Messa
   //PB->S << Offset <<  "(Done)" << endl << endl << endl;
 
   return Status;
+}
+
+void HTInfoPayload01::generateReceivedMessageReport(string _FileName, double _Time)
+{
+	PB->S << "(Adding file " << _FileName << " to the publish list report)" << endl;
+
+	ifstream reportFile;
+	reportFile.open (PB->GetPath () + "ReceivedMessagesReport.json");
+	string reportContent;
+	if(reportFile)
+	{
+		string line;
+		while(getline(reportFile,line))
+		{
+			reportContent += line;
+		}
+		reportFile.close();	
+	}
+	else
+	{
+		reportContent = "{\"ReceivedMessages\":[]}";
+	}
+
+	string newReport = "{\"FileName\":\"" + _FileName + "\",\"Time\":" + PB->DoubleToString(_Time) + "}";
+
+	Document document;
+	document.Parse(reportContent.c_str());
+	
+	Value& publishedMessages = document["ReceivedMessages"];
+	
+	Document newReportDocument;
+	newReportDocument.Parse(newReport.c_str());
+	publishedMessages.PushBack(newReportDocument, document.GetAllocator());
+	
+	PB->S << "(Received messages report created)" << endl;
+
+	StringBuffer buffer;
+	Writer<StringBuffer> writer(buffer);
+	document.Accept(writer);
+	ofstream newReportFile;
+	newReportFile.open (PB->GetPath () + "ReceivedMessagesReport.json");
+	newReportFile << buffer.GetString();
+	newReportFile.close();
 }

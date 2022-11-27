@@ -61,6 +61,9 @@ class HTInfoPayload01 : public Action {
   // Run the actions behind a received message
   virtual int
   Run (Message *_ReceivedMessage, CommandLine *_PCL, vector<Message *> &ScheduledMessages, Message *&InlineResponseMessage);
+
+  // Generates a received messages report
+  void generateReceivedMessageReport (string _FileName, double _Time);
 };
 
 #endif
