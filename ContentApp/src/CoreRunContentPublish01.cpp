@@ -690,9 +690,11 @@ void CoreRunContentPublish01::generatePublishMessageReport (string _FileName, do
 	document.Parse(reportContent.c_str());
 	
 	Value& publishedMessages = document["PublishedMessages"];
-
-	publishedMessages.PushBack(Value().SetString(newReport.c_str(), document.GetAllocator()), document.GetAllocator());
-
+	
+	Document newReportDocument;
+	newReportDocument.Parse(newReport.c_str());
+	publishedMessages.PushBack(newReportDocument, document.GetAllocator());
+	
 	PB->S << "(Published messages report created)" << endl;
 
 	StringBuffer buffer;
