@@ -165,6 +165,34 @@ web::json::value getPublishedMessages()
     return output;
 }
 
+/**
+ * @brief Get the Subscribed messages report
+ * 
+ * @return web::json::value The subscribed messages report
+ */
+web::json::value getReceivedMessages()
+{
+    web::json::value output;
+    string path = std::string(BASE) + "/IO/NRNCS/ReceivedMessagesReport.json";
+    uclog << "Reading received messages" << path << endl;
+    try
+    {
+        std::ifstream file(path);
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        file.close();
+        output = json::value::parse(buffer.str());
+    }
+    catch (const json::json_exception &e)
+    {
+        output = json::value::string("Error reading received messages");
+        uclog << "Error reading received messages" << endl;
+        uclog << e.what() << endl;
+    }
+
+    return output;
+}
+
 
 int main()
 {
@@ -225,6 +253,8 @@ int main()
                 respondImage(req, status_codes::OK, std::string(BASE) + "/IO/Source1/" + imageName);
             } else if (http_uri_sub_dir == U("/publishedMessages")) {
                 respond(req, status_codes::OK, getPublishedMessages());
+            } else if (http_uri_sub_dir == U("/receivedMessages")) {
+                respond(req, status_codes::OK, getReceivedMessages());
             }
 
             respond(req, status_codes::NotFound, json::value::string(U("URI not found. Try /serviceOffers or /bindings")));
