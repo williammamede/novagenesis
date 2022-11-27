@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { PublishedMessages } from '../data-monitor.model';
+import { Messages } from '../data-monitor.model';
 
 @Component({
     selector: 'app-data-viewer-dialog',
@@ -8,7 +8,7 @@ import { PublishedMessages } from '../data-monitor.model';
 })
 export class DataViewerDialogComponent {
 
-    constructor(@Inject(MAT_DIALOG_DATA) public data: PublishedMessages) { }
+    constructor(@Inject(MAT_DIALOG_DATA) public data: Messages) { }
 
     ngOnInit(): void {
     }

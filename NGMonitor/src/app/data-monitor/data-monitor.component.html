@@ -35,5 +35,29 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="showData(row)"></tr>
         </table>
     </mat-tab>
-    <mat-tab label="Received data"> TBD </mat-tab>
+    <mat-tab label="Received data">
+        <table mat-table [dataSource]="receivedData" class="mat-elevation-z8" width="100%">
+            <ng-container matColumnDef="fileName">
+                <th mat-header-cell *matHeaderCellDef> File Name </th>
+                <td mat-cell *matCellDef="let data">
+                    <mat-icon mat-list-icon>image</mat-icon>
+                     {{data.FileName}}
+                </td>
+            </ng-container>
+            <ng-container matColumnDef="time">
+                <th mat-header-cell *matHeaderCellDef> Time </th>
+                <td mat-cell *matCellDef="let data"> {{data.Time}} </td>
+            </ng-container>
+            <ng-container matColumnDef="source">
+                <th mat-header-cell *matHeaderCellDef> Source </th>
+                <td mat-cell *matCellDef="let data"> Content app 1 </td>
+            </ng-container>
+            <ng-container matColumnDef="size">
+                <th mat-header-cell *matHeaderCellDef> Size </th>
+                <td mat-cell *matCellDef="let data"> This will present the size of the data </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="showData(row)"></tr>
+        </table>
+    </mat-tab>
 </mat-tab-group>

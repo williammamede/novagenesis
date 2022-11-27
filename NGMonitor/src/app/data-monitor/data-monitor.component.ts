@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { PublishedMessages } from './data-monitor.model';
+import { Messages } from './data-monitor.model';
 import { DataMonitorService } from './data-monitor.service';
 import { DataViewerDialogComponent } from './data-viewer-dialog/data-viewer-dialog.component';
 
@@ -14,14 +14,15 @@ export class DataMonitorComponent implements OnInit {
   constructor(private dataMonitorService: DataMonitorService, public dialog: MatDialog) { }
 
   protected offeredServices: string[] = [];
-  protected transferedData: PublishedMessages[] = [];
-  protected receivedData: string[] = [];
+  protected transferedData: Messages[] = [];
+  protected receivedData: Messages[] = [];
   displayedColumns: string[] = ['fileName', 'time', 'source', 'size'];
 
   ngOnInit(): void {
     setInterval(() => {
       this.setOfferedServices();
       this.setTransferedData();
+      this.setReceivedData();
     }, 2000);
   }
 
@@ -37,7 +38,13 @@ export class DataMonitorComponent implements OnInit {
     });
   }
 
-  showData(data: PublishedMessages) {
+  setReceivedData() {
+    this.dataMonitorService.getReceivedData().subscribe(data => {
+      this.receivedData = data.ReceivedMessages;
+    });
+  }
+
+  showData(data: Messages) {
     const dialogRef = this.dialog.open(DataViewerDialogComponent, {
       width: '80%',
       height: '80%',

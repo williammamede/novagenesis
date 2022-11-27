@@ -12,6 +12,7 @@ export class DataMonitorService {
     SERVER_ADRESS = '/api/';
     SERVICE_OFFERED = 'serviceOffers';
     TRANSFERED_DATA = 'publishedMessages';
+    RECEIVED_DATA = 'receivedMessages';
 
     getOfferedServices(): Observable<any> {
         return this.http.get(`${this.SERVER_ADRESS}${this.SERVICE_OFFERED}`).pipe(
@@ -27,6 +28,14 @@ export class DataMonitorService {
             catchError(this.handleError)
         );
             
+    }
+
+    getReceivedData(): Observable<any> {
+        return this.http.get(`${this.SERVER_ADRESS}${this.RECEIVED_DATA}`).pipe(
+            retry(3),
+            catchError(this.handleError)
+        );
+
     }
 
     private handleError(error: any) {
