@@ -193,6 +193,34 @@ web::json::value getReceivedMessages()
     return output;
 }
 
+/**
+ * @brief Get the lifecycle, the service status
+ * 
+ * @return web::json::value The services status
+ */
+web::json::value getLifecycle()
+{
+    web::json::value output;
+    string path = std::string(BASE) + "/IO/PGCS/ApplicationLifecycleReport.json";
+    uclog << "Reading lifecycle" << path << endl;
+    try
+    {
+        std::ifstream file(path);
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        file.close();
+        output = json::value::parse(buffer.str());
+    }
+    catch (const json::json_exception &e)
+    {
+        output = json::value::string("Error reading service lifecycle");
+        uclog << "Error reading service lifecycle" << endl;
+        uclog << e.what() << endl;
+    }
+
+    return output;
+}
+
 
 int main()
 {
@@ -255,7 +283,9 @@ int main()
                 respond(req, status_codes::OK, getPublishedMessages());
             } else if (http_uri_sub_dir == U("/receivedMessages")) {
                 respond(req, status_codes::OK, getReceivedMessages());
-            }
+            } else if (http_uri_sub_dir == U("/lifecycle")) {
+                respond(req, status_codes::OK, getLifecycle());
+            } else
 
             respond(req, status_codes::NotFound, json::value::string(U("URI not found. Try /serviceOffers or /bindings")));
         });

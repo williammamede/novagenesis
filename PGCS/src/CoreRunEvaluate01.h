@@ -101,6 +101,8 @@ class CoreRunEvaluate01 : public Action {
   int ProcessTXTFile (string _Publisher_LN, unsigned int _Index, Subscription *_PS, string _FileName);
 
   bool Run (string _Command, FILE *&_f);
+
+  void generateApplicationLifecycleReport(double _Time);
 };
 
 #endif

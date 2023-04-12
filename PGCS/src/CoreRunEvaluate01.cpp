@@ -43,6 +43,13 @@
 
 #define DEBUG
 
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include <stdio.h>
+#include <string.h>
+
+using namespace rapidjson;
+
 CoreRunEvaluate01::CoreRunEvaluate01 (string _LN, Block *_PB, MessageBuilder *_PMB) : Action (_LN, _PB, _PMB)
 {
   TimeToExpose = 0;
@@ -521,6 +528,7 @@ int CoreRunEvaluate01::CheckSubscriptions (vector<Message *> &_ScheduledMessages
   else
 	{
 	  PB->S << Offset1 << "(Waiting for NRNCS discovery)" << endl;
+	  generateApplicationLifecycleReport(GetTime());
 	}
 
   return Status;
@@ -896,4 +904,43 @@ bool CoreRunEvaluate01::Run (string _Command, FILE *&_f)
 	}
 
   return Status;
+}
+
+void CoreRunEvaluate01::generateApplicationLifecycleReport(double _Time)
+{
+	PB->S << "(Generating the application lifecycle report)" << endl;
+
+	// Create json file that will store the system state
+	PB->S << "(Creating the json file that will store the system state)" << endl;
+	ifstream reportFile;
+	reportFile.open (PB->GetPath () + "ApplicationLifecycleReport.json");
+	string reportContent;
+	if (reportFile.is_open())
+	{
+		PB->S << "(The file already exists. Deleting it)" << endl;
+		std::remove ((PB->GetPath () + "ApplicationLifecycleReport.json").c_str ());
+	}
+	reportFile.close();
+
+	reportContent = "{\n \"serviceStates\": []}";
+	string serviceState = "{\n \"serviceName\": \"PGCS\",\n \"serviceState\": \"running\",\n \"serviceStartTime\": \"" + PB->DoubleToString(_Time) +"\"}";
+
+	Document document;
+	document.Parse(reportContent.c_str());
+
+	Value& serviceStates = document["serviceStates"];
+
+	Document serviceStateValue;
+	serviceStateValue.Parse(serviceState.c_str());
+	serviceStates.PushBack(serviceStateValue, document.GetAllocator());
+
+	PB->S << "(Service state added to the json file)" << endl;
+
+	StringBuffer buffer;
+	Writer<StringBuffer> writer(buffer);
+	document.Accept(writer);
+	ofstream newReportFile;
+	newReportFile.open (PB->GetPath () + "ApplicationLifecycleReport.json");
+	newReportFile << buffer.GetString();
+	newReportFile.close();
 }
