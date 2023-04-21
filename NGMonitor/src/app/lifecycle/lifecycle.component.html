@@ -1,0 +1,26 @@
+<h2>Network lifecycle</h2>
+
+<ul>
+    <li *ngFor="let service of services"
+        class="mat-list-item"
+        style="display: flex; align-items: center;">
+        <!-- if serviceState is waiting show a red loading spinner -->
+        <mat-spinner *ngIf="service.serviceState === 'waiting'"
+                     mat-list-icon
+                     color="warn"
+                     diameter="20"
+                     strokeWidth="3"></mat-spinner>
+        <!-- if serviceState is starting show a yellow loading spinner -->
+        <mat-spinner *ngIf="service.serviceState === 'starting'"
+                     mat-list-icon
+                     color="accent"
+                     diameter="20"
+                     strokeWidth="3"></mat-spinner>
+        <!-- if serviceState is running show a check -->
+        <mat-icon *ngIf="service.serviceState === 'running'"
+                  mat-list-icon
+                  color="primary">check</mat-icon>
+        
+        <h4 mat-line class="mat-list-item">{{service.serviceName}}</h4>
+    </li>
+</ul>

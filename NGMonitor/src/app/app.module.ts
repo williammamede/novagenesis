@@ -17,6 +17,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { GraphAppModule } from './graph-app/graph-app.module';
 import { DataMonitorModule } from './data-monitor/data-monitor.module';
+import { LifecycleModule } from './lifecycle/lifecycle.module';
 import { CustomHttpInterceptor } from './http-interceptors/custom-http-interceptor';
 import { BindingsComponent } from './bindings/bindings.component';
 
@@ -30,6 +31,7 @@ import { BindingsComponent } from './bindings/bindings.component';
     AppRoutingModule,
     GraphAppModule,
     DataMonitorModule,
+    LifecycleModule,
     HttpClientModule,
     NgxGraphModule,
     CommonModule,
