@@ -914,33 +914,57 @@ void CoreRunEvaluate01::generateApplicationLifecycleReport(double _Time)
 	PB->S << "(Creating the json file that will store the system state)" << endl;
 	ifstream reportFile;
 	reportFile.open (PB->GetPath () + "ApplicationLifecycleReport.json");
-	string reportContent;
+	string reportContent = "";
 	if (reportFile.is_open())
 	{
-		PB->S << "(The file already exists. Deleting it)" << endl;
-		std::remove ((PB->GetPath () + "ApplicationLifecycleReport.json").c_str ());
+		PB->S << "(Finding the serviceState with serviceState PGCS)" << endl;
+		string line;
+		while (getline(reportFile, line))
+		{
+			reportContent += line;
+		}
 	}
 	reportFile.close();
 
-	reportContent = "{\n \"serviceStates\": []}";
-	string serviceState = "{\n \"serviceName\": \"PGCS\",\n \"serviceState\": \"running\",\n \"serviceStartTime\": \"" + PB->DoubleToString(_Time) +"\"}";
+	if (reportContent == "")
+	{
+		PB->S << "(Creating the serviceState with serviceState PGCS)" << endl;
+		reportContent = "{\n \"serviceName\": \"PGCS\",\n \"serviceState\": \"starting\",\n \"time\": " + to_string(_Time) + "\n}";
+	}
 
 	Document document;
 	document.Parse(reportContent.c_str());
 
 	Value& serviceStates = document["serviceStates"];
 
-	Document serviceStateValue;
-	serviceStateValue.Parse(serviceState.c_str());
-	serviceStates.PushBack(serviceStateValue, document.GetAllocator());
+	for (SizeType i = 0; i < serviceStates.Size(); i++)
+	{
+		Value& serviceState = serviceStates[i];
+		if (std::string(serviceState["serviceName"].GetString()) == "PGCS")
+		{
+			PB->S << "(Updating the serviceState with running)" << endl;
+			serviceState["serviceState"].SetString("running");
 
-	PB->S << "(Service state added to the json file)" << endl;
+			PB->S << "(Updating the serviceState with time)" << endl;
+			string time = to_string(_Time);
+			serviceState["time"].SetString(time.c_str(), time.length(), document.GetAllocator());
+		}
+	}
 
+	PB->S << "(Writing the json file that will store the system state)" << endl;
 	StringBuffer buffer;
 	Writer<StringBuffer> writer(buffer);
 	document.Accept(writer);
-	ofstream newReportFile;
-	newReportFile.open (PB->GetPath () + "ApplicationLifecycleReport.json");
-	newReportFile << buffer.GetString();
-	newReportFile.close();
+	ofstream reportFile2;
+	reportFile2.open (PB->GetPath () + "ApplicationLifecycleReport.json");
+	reportFile2 << buffer.GetString();
+	if (reportFile2.good())
+	{
+		PB->S << "(The json file that will store the system state was successfully written)" << endl;
+	}
+	else
+	{
+		PB->S << "(The json file that will store the system state was not successfully written)" << endl;
+	}
+	reportFile2.close();
 }

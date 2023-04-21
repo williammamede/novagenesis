@@ -35,6 +35,100 @@
 #include <sys/time.h>
 #endif
 
+#include <chrono>
+#include <ctime>
+#include <sstream>
+
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include <stdio.h>
+#include <string.h>
+
+using namespace rapidjson;
+
+void generateApplicationLifecycleReport(string Path, string _Time)
+{
+	cout << "(Generating the application lifecycle report)" << endl;
+
+	// Read json file that stores the system state
+	cout << "(Reading the json file that will store the system state)" << endl;
+
+	ifstream reportFile;
+	reportFile.open (Path + "ApplicationLifecycleReport.json");
+	string reportContent = "";
+	if (reportFile.is_open())
+	{
+		cout << "(The json file that will store the system state was successfully opened)" << endl;
+		string line;
+		while (getline(reportFile, line))
+		{
+			reportContent += line;
+		}
+
+		cout << "(The json file that will store the system state was successfully read)" << endl;
+	}
+	reportFile.close();
+
+	if (reportContent == "")
+	{
+		cout << "(No information was found in the json file that will store the system state)" << endl;
+		return;
+	}
+
+	Document document;
+	document.Parse(reportContent.c_str());
+
+	Value& serviceStates = document["serviceStates"];
+
+	for (SizeType i = 0; i < serviceStates.Size(); i++)
+	{
+		Value& serviceState = serviceStates[i];
+		if (std::string(serviceState["serviceName"].GetString()) == "NRNCS")
+		{
+			cout << "(Updating the serviceState with running)" << endl;
+			serviceState["serviceState"].SetString("running");
+
+			cout << "(Updating the serviceState with time)" << endl;
+			serviceState["time"].SetString(_Time.c_str(), _Time.length(), document.GetAllocator());
+		}
+	}
+
+	cout << "(Writing the json file that will store the system state)" << endl;
+	StringBuffer buffer;
+	Writer<StringBuffer> writer(buffer);
+	document.Accept(writer);
+	ofstream reportFile2;
+	reportFile2.open (Path + "ApplicationLifecycleReport.json");
+	reportFile2 << buffer.GetString();
+	if (reportFile2.good())
+	{
+		cout << "(The json file that will store the system state was successfully written)" << endl;
+	}
+	else
+	{
+		cout << "(The json file that will store the system state was not successfully written)" << endl;
+	}
+	reportFile2.close();
+}
+
+string getTime() {
+    // Get the current system time
+    auto now = std::chrono::system_clock::now();
+    
+    // Convert the system time to a time_t object
+    std::time_t time = std::chrono::system_clock::to_time_t(now);
+    
+    // Convert the time_t object to a string
+    std::stringstream ss;
+    ss << std::ctime(&time);
+    std::string timeStr = ss.str();
+    
+    // Remove the newline character from the end of the string
+    timeStr = timeStr.substr(0, timeStr.length() - 1);
+    
+    return timeStr;
+}
+
 int main (int argc, char *argv[])
 {
   int R = 0;
@@ -66,6 +160,10 @@ int main (int argc, char *argv[])
 
 		  // Set the shm key
 		  key_t Key = R;
+
+		  // Update lifecycle report
+		  string _Time = getTime();
+		  generateApplicationLifecycleReport("/mnt/c/Users/williamsm/Documents/personal_workspace/novagenesis/IO/PGCS/", _Time);
 
 		  // Create a process instance
 		  NRNCS execNRS ("NRNCS", Key, Path);
