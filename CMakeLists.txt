@@ -645,8 +645,10 @@ target_link_libraries (NGConverter LINK_PRIVATE Common)
 
 
 find_package(cpprestsdk REQUIRED)
+find_package(CURL REQUIRED)
 add_executable(NGApi
         NGApi/src/listen.cpp)
 
 target_link_libraries (NGApi LINK_PRIVATE Common)
 target_link_libraries(NGApi PRIVATE cpprestsdk::cpprest)
+target_link_libraries(NGApi PRIVATE CURL::libcurl)

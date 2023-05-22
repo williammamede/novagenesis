@@ -35,6 +35,8 @@
 #include <chrono>
 #include <ctime>
 #include <fstream>
+#include <curl/curl.h>
+
 
 // cpprest provides macros for all streams but std::clog in basic_types.h
 #ifdef _UTF16_STRINGS
@@ -221,6 +223,50 @@ web::json::value getLifecycle()
     return output;
 }
 
+/**
+ * @brief Write callback for web page requests
+ * 
+ * @return size_t The size of the response
+ */ 
+size_t WriteCallback(char* contents, size_t size, size_t nmemb, std::string* response)
+{
+    size_t totalSize = size * nmemb;
+    response->append(contents, totalSize);
+    
+    // Check if the response indicates a redirect
+    if (totalSize >= 17 && response->substr(9, 8) == "301 Moved") {
+        size_t redirectStartPos = response->find("Location: ");
+        if (redirectStartPos != std::string::npos) {
+            size_t redirectEndPos = response->find("\r\n", redirectStartPos);
+            if (redirectEndPos != std::string::npos) {
+                std::string redirectUrl = response->substr(redirectStartPos + 10, redirectEndPos - redirectStartPos - 10);
+                
+                // Perform a new request to the redirect URL
+                CURL* curlRedirect = curl_easy_init();
+                std::string redirectResponse;
+                
+                if (curlRedirect) {
+                    curl_easy_setopt(curlRedirect, CURLOPT_URL, redirectUrl.c_str());
+                    curl_easy_setopt(curlRedirect, CURLOPT_WRITEFUNCTION, WriteCallback);
+                    curl_easy_setopt(curlRedirect, CURLOPT_WRITEDATA, &redirectResponse);
+                    CURLcode resRedirect = curl_easy_perform(curlRedirect);
+                    
+                    if (resRedirect != CURLE_OK) {
+                        std::cerr << "Error: " << curl_easy_strerror(resRedirect) << std::endl;
+                    }
+                    
+                    curl_easy_cleanup(curlRedirect);
+                }
+                
+                // Replace the original response with the redirect response
+                *response = redirectResponse;
+            }
+        }
+    }
+    
+    return totalSize;
+}
+
 
 int main()
 {
@@ -285,7 +331,43 @@ int main()
                 respond(req, status_codes::OK, getReceivedMessages());
             } else if (http_uri_sub_dir == U("/lifecycle")) {
                 respond(req, status_codes::OK, getLifecycle());
-            } else
+            } 
+            // Else if contains www on it
+            else if (http_uri_sub_dir.find(U("www")) != std::string::npos) {
+                auto path = http_uri_sub_dir.substr(1);
+                uclog << U("Received request for WEB Page: ") << path << endl;
+
+                // Get with CURL the web page from the given path
+                CURL* curl = curl_easy_init();
+                std::string response;
+
+                if (curl) {
+                    // Set the URL to the desired web page
+                    curl_easy_setopt(curl, CURLOPT_URL, path.c_str());
+
+                    // Set the callback function to handle the response
+                    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);  // Enable automatic redirect following
+                    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+                    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+                    // Perform the request
+                    CURLcode res = curl_easy_perform(curl);
+
+                    // Check for errors
+                    if (res != CURLE_OK) {
+                        std::cerr << "Error: " << curl_easy_strerror(res) << std::endl;
+                    }
+
+                    // Clean up
+                    curl_easy_cleanup(curl);
+                }
+
+                http_response responseHttp(status_codes::OK);
+                responseHttp.headers().add(U("Content-Type"), U("text/html"));
+                responseHttp.set_body(response);
+                req.reply(responseHttp);
+            }
+            else
 
             respond(req, status_codes::NotFound, json::value::string(U("URI not found. Try /serviceOffers or /bindings")));
         });

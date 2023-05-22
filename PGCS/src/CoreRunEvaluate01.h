@@ -102,7 +102,7 @@ class CoreRunEvaluate01 : public Action {
 
   bool Run (string _Command, FILE *&_f);
 
-  void generateApplicationLifecycleReport(double _Time);
+  void generateApplicationLifecycleReport(string serviceName, string state, double _Time);
 };
 
 #endif

@@ -138,6 +138,12 @@ int CoreRunEvaluate01::CheckForPSAwareness (vector<Message *> &_ScheduledMessage
 
 		  TimeToExpose = GetTime () + 10;
 		}
+	} else
+	{
+		// Report that NRNCS is down
+		PB->S << Offset1 << "(The PGCS is not aware of this PSS/NRNCS)" << endl;
+		generateApplicationLifecycleReport("NRNCS","waiting",GetTime());
+
 	}
 
   return Status;
@@ -528,7 +534,7 @@ int CoreRunEvaluate01::CheckSubscriptions (vector<Message *> &_ScheduledMessages
   else
 	{
 	  PB->S << Offset1 << "(Waiting for NRNCS discovery)" << endl;
-	  generateApplicationLifecycleReport(GetTime());
+	  generateApplicationLifecycleReport("PGCS","running",GetTime());
 	}
 
   return Status;
@@ -906,18 +912,15 @@ bool CoreRunEvaluate01::Run (string _Command, FILE *&_f)
   return Status;
 }
 
-void CoreRunEvaluate01::generateApplicationLifecycleReport(double _Time)
+void CoreRunEvaluate01::generateApplicationLifecycleReport(string serviceName, string state, double _Time)
 {
 	PB->S << "(Generating the application lifecycle report)" << endl;
 
-	// Create json file that will store the system state
-	PB->S << "(Creating the json file that will store the system state)" << endl;
 	ifstream reportFile;
 	reportFile.open (PB->GetPath () + "ApplicationLifecycleReport.json");
 	string reportContent = "";
 	if (reportFile.is_open())
 	{
-		PB->S << "(Finding the serviceState with serviceState PGCS)" << endl;
 		string line;
 		while (getline(reportFile, line))
 		{
@@ -940,10 +943,10 @@ void CoreRunEvaluate01::generateApplicationLifecycleReport(double _Time)
 	for (SizeType i = 0; i < serviceStates.Size(); i++)
 	{
 		Value& serviceState = serviceStates[i];
-		if (std::string(serviceState["serviceName"].GetString()) == "PGCS")
+		if (std::string(serviceState["serviceName"].GetString()) == serviceName)
 		{
-			PB->S << "(Updating the serviceState with running)" << endl;
-			serviceState["serviceState"].SetString("running");
+			PB->S << "(Updating the serviceState " << serviceName << " with state " << state << ")" << endl;
+			serviceState["serviceState"].SetString(state.c_str(), state.length(), document.GetAllocator());
 
 			PB->S << "(Updating the serviceState with time)" << endl;
 			string time = to_string(_Time);
