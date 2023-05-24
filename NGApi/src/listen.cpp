@@ -267,6 +267,19 @@ size_t WriteCallback(char* contents, size_t size, size_t nmemb, std::string* res
     return totalSize;
 }
 
+/**
+ * @brief Header callback for web page requests, that will be included in restcppsdk response
+ * 
+ * @return size_t The size of the header
+ */
+size_t HeaderCallback(char* contents, size_t size, size_t nmemb, std::string* response)
+{
+    size_t totalSize = size * nmemb;
+    response->append(contents, totalSize);
+    
+    return totalSize;
+}
+
 
 int main()
 {
@@ -332,14 +345,15 @@ int main()
             } else if (http_uri_sub_dir == U("/lifecycle")) {
                 respond(req, status_codes::OK, getLifecycle());
             } 
-            // Else if contains www on it
-            else if (http_uri_sub_dir.find(U("www")) != std::string::npos) {
+            // Else if contains www or http, then it is a web page request
+            else /* if (http_uri_sub_dir.find(U("www")) != std::string::npos || http_uri_sub_dir.find(U("http")) != std::string::npos) */ {
                 auto path = http_uri_sub_dir.substr(1);
                 uclog << U("Received request for WEB Page: ") << path << endl;
 
                 // Get with CURL the web page from the given path
                 CURL* curl = curl_easy_init();
                 std::string response;
+                std::string headers;
 
                 if (curl) {
                     // Set the URL to the desired web page
@@ -349,6 +363,10 @@ int main()
                     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);  // Enable automatic redirect following
                     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
                     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+                    
+                    // store the received headers
+                    curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, HeaderCallback);
+                    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &headers);
 
                     // Perform the request
                     CURLcode res = curl_easy_perform(curl);
@@ -363,13 +381,30 @@ int main()
                 }
 
                 http_response responseHttp(status_codes::OK);
-                responseHttp.headers().add(U("Content-Type"), U("text/html"));
+
+                std::istringstream iss(headers);
+                std::string line;
+                while (std::getline(iss, line)) {
+                    auto pos = line.find(':');
+                    if (pos != std::string::npos) {
+                        auto headerName = line.substr(0, pos);
+                        auto headerValue = line.substr(pos + 1);
+                        // Remove the \r at the end of the string
+                        headerValue.erase(std::remove(headerValue.begin(), headerValue.end(), '\r'), headerValue.end());
+                        // Remove the space at the beginning of the string
+                        headerValue.erase(headerValue.begin(), std::find_if(headerValue.begin(), headerValue.end(), [](int ch) {
+                            return !std::isspace(ch);
+                        }));
+                        responseHttp.headers().add(U(headerName.c_str()), U(headerValue.c_str()));
+                    }
+                }
+                
                 responseHttp.set_body(response);
                 req.reply(responseHttp);
             }
-            else
+            /* else
 
-            respond(req, status_codes::NotFound, json::value::string(U("URI not found. Try /serviceOffers or /bindings")));
+            respond(req, status_codes::NotFound, json::value::string(U("URI not found. Try /serviceOffers or /bindings"))); */
         });
 
     // Wait while the listener does the heavy lifting.
