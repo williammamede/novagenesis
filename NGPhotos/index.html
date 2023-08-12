@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Webcam Capture</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+    <div>
+        <!-- Intial text message with a button to listen to an audio -->
+        <div id="initialInfo">
+            <!-- Page title in to the top of the container -->
+            <h1>NOVAGENESIS</h1>
+            <h2>Entrou na cápsula?</h2>
+            <h2>Próxima parada: Internet do Futuro</h2>
+            <p>O projeto NOVAGENESIS irá revolucionar o campo tecnológico redesenhando um modelo alternativo de Internet
+                do zero</p>
+            <button id="audioButton" type="button" onclick="playAudio()">Ouça o futuro</button>
+        </div>
+        <!-- Form to capture the name and email -->
+        <form id="formBox">
+            <p>Preencha seus dados abaixo. Ao clicar em "Começar", você acionará a câmera que a cada 2 segundos, vai
+                tirar uma nova foto sua.</p>
+            <label for="name">Nome:</label>
+            <input type="text" id="name" name="name" required>
+            <label for="email">E-mail:</label>
+            <input type="email" id="email" name="email" required>
+            <div class="checkbox-container">
+                <input type="checkbox" id="allowCapture" required>
+                <label for="allowCapture"></label>
+            </div>
+            <button type="button" id="capturarButton" onclick="startCapture()" disabled>Começar</button>
+        </form>
+
+        <!-- Last meessage -->
+        <div id="lastMessage">
+            <h1>Agradecemos sua participação!</h1>
+            <h2>Saia da cápsula e veja sua foto no telão da Novagenesis e conte para todos.</h2>
+            <h1>Bom evento!</h1>
+        </div>
+    </div>
+    <div id="cameraPreview">
+        <!-- Camera preview -->
+        <div id="videoCamera"></div>
+        <!-- Filter over the camera preview -->
+        <div id="filterPreview"></div>
+    </div>
+    <div id="timer-container">
+        <div id="timer">0</div>
+    </div>
+
+    <script>
+        // Function to play the audio
+        function playAudio() {
+            // Disable the button
+            disableAudioButton();
+            // open audio from local file audioTest.mp3
+            const audio = new Audio('audioTest.mp3');
+            audio.play();
+            // Wait audio to finish and then show the form
+            audio.onended = function () {
+                // Show the form
+                document.getElementById('formBox').style.display = 'block';
+                // Hide the initial info
+                document.getElementById('initialInfo').style.display = 'none';
+            };
+        }
+
+        function disableAudioButton() {
+            const audioButton = document.getElementById('audioButton');
+            audioButton.disabled = true;
+            audioButton.style.backgroundColor = '#ccc';
+            audioButton.style.cursor = 'not-allowed';
+        }
+
+        function enableAudioButton() {
+            const audioButton = document.getElementById('audioButton');
+            audioButton.disabled = false;
+            audioButton.style.backgroundColor = '#4CAF50';
+            audioButton.style.cursor = 'pointer';
+        }
+
+        // Function to start capturing the webcam image
+        function startCapture() {
+            // Check if the "Permitir tirar a foto" checkbox is checked
+            const allowCaptureCheckbox = document.getElementById('allowCapture');
+            if (!allowCaptureCheckbox.checked) {
+                alert('Por favor, marque a caixa "Permitir tirar a foto" antes de começar.');
+                return;
+            }
+
+            startPhotoCaptureTimer();
+        }
+
+        function startPhotoCaptureTimer() {
+            var photosToCapture = 3;
+            var capturedPhotos = 0;
+            var photosProcessed = false;
+            var count = 0;
+            var intervalBetweenPhotos = 3;
+            var timer = document.getElementById('timer');
+            var timerContainer = document.getElementById('timer-container');
+            timerContainer.style.display = 'block';
+
+            // Hide the form
+            document.getElementById('formBox').style.display = 'none';
+
+            document.getElementById('cameraPreview').style.display = 'flex';
+            document.getElementById('videoCamera').style.display = 'block';
+            document.getElementById('filterPreview').style.display = 'block';
+            
+            var intervalId;
+            var fileNames = [];
+            const nameInput = document.getElementById('name');
+            const emailInput = document.getElementById('email');
+            const data = {
+                name: nameInput.value,
+                email: emailInput.value
+            };
+            async function updateTimer() {
+                if (capturedPhotos == photosToCapture && !photosProcessed) {
+                    photosProcessed = true;
+                    console.log('photos will be processed');
+                    // Close the webcam preview
+                    document.getElementById('cameraPreview').style.display = 'none';
+                    document.getElementById('videoCamera').style.display = 'none';
+                    document.getElementById('filterPreview').style.display = 'none';
+                    document.getElementById('timer-container').style.display = 'none';
+
+                    // Show last message for 10 seconds
+                    document.getElementById('lastMessage').style.display = 'block';
+                    // Process images
+                    const imageProccessing = await processImages(fileNames);
+                    console.log('images processed');
+
+                    // Send email
+                    setTimeout(function () {
+                        console.log('sending email');
+                        sendEmail(data, fileNames);
+                    }, 1000);
+                    
+                    reset();
+                }
+                if (count == intervalBetweenPhotos && capturedPhotos < photosToCapture && data.name && data.email) {
+                    capturedPhotos += 1;
+                    blinkScreen();
+                    fileNames.push(capturePhoto());
+                }
+                count = count == (intervalBetweenPhotos || capturedPhotos == photosToCapture) ? count = 0 : count + 1;
+                timer.innerText = count;
+            }
+
+            function blinkScreen() {
+                var body = document.getElementsByTagName('body')[0];
+                body.classList.add('blinking');
+                setTimeout(function () {
+                    body.classList.remove('blinking');
+                }, 700);
+            }
+
+            function reset() {
+                clearInterval(intervalId);
+                document.getElementById('name').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('allowCapture').checked = false;
+                checkFormValidity()
+                timerContainer.style.display = 'none';
+                setTimeout(function () {
+                    document.getElementById('lastMessage').style.display = 'none';
+                    document.getElementById('initialInfo').style.display = 'block';
+                    enableAudioButton();
+                }, 20000);
+
+            }
+
+            intervalId = setInterval(updateTimer, 1000);
+        }
+
+        function capturePhoto() {
+            const fileName = new Date().getTime() + '.jpg';
+            WebCamera.snap(function (data_uri) {
+                // Save the photo to the disk
+                var fs = require('fs');
+                var path = require('path');
+                var filePath = path.join(__dirname, fileName);
+                var data = data_uri.replace(/^data:image\/\w+;base64,/, "");
+                var buf = new Buffer(data, 'base64');
+                fs.writeFile(filePath, buf, function (err) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log("The file was created!");
+                    }
+                });
+            });
+
+            return fileName;
+        }
+
+        async function  processImages(photoNames) {
+            var jimp = require('jimp');
+            const filter = await jimp.read('filter.png');
+            for (var i = 0; i < photoNames.length; i++) {
+                const image = await jimp.read(photoNames[i]);
+                
+                // Crop from center to 9:16
+                const curretAspectRatio = image.bitmap.width / image.bitmap.height;
+                const targetAspectRatio = 9 / 16;
+                if (curretAspectRatio > targetAspectRatio) {
+                    // If the image is too wide, crop the left and right edges
+                    const newWidth = image.bitmap.height * targetAspectRatio;
+                    const newHeight = image.bitmap.height;
+                    const x = (image.bitmap.width - newWidth) / 2;
+                    const y = 0;
+                    image.crop(x, y, newWidth, newHeight);
+                } else if (curretAspectRatio < targetAspectRatio) {
+                    // If the image is too tall, crop the top and bottom edges
+                    const newWidth = image.bitmap.width;
+                    const newHeight = image.bitmap.width / targetAspectRatio;
+                    const x = 0;
+                    const y = (image.bitmap.height - newHeight) / 2;
+                    image.crop(x, y, newWidth, newHeight);
+                }
+
+                // Resize the photos to 1080x1920
+                image.resize(1080, 1920);
+
+                // Set the filter.png image as a filter to the photos
+                image.composite(filter, 0, 0, {
+                    mode: jimp.BLEND_SCREEN,
+                    opacityDest: 1,
+                    opacitySource: 1
+                });
+
+                // Save the photo to the disk
+                image.write(photoNames[i]);
+            }
+        }
+
+        function cropPhotos(photoNames) {
+            // Crop from center to 9:16
+            var Jimp = require("jimp");
+            photoNames.forEach(function (photoName) {
+                Jimp.read(photoName, function (err, image) {
+                    if (err) throw err;
+                    const curretAspectRatio = image.bitmap.width / image.bitmap.height;
+                    const targetAspectRatio = 9 / 16;
+                    if (curretAspectRatio > targetAspectRatio) {
+                        // If the image is too wide, crop the left and right edges
+                        const newWidth = image.bitmap.height * targetAspectRatio;
+                        const newHeight = image.bitmap.height;
+                        const x = (image.bitmap.width - newWidth) / 2;
+                        const y = 0;
+                        image.crop(x, y, newWidth, newHeight);
+                    } else if (curretAspectRatio < targetAspectRatio) {
+                        // If the image is too tall, crop the top and bottom edges
+                        const newWidth = image.bitmap.width;
+                        const newHeight = image.bitmap.width / targetAspectRatio;
+                        const x = 0;
+                        const y = (image.bitmap.height - newHeight) / 2;
+                        image.crop(x, y, newWidth, newHeight);
+                    }
+                    image.write(photoName);
+                });
+            });
+
+        }
+
+        function resizePhotos(photoNames) {
+            // Resize the photos to 1080x1920
+            var Jimp = require("jimp");
+            photoNames.forEach(async function (photoName) {
+                await Jimp.read(photoName, function (err, image) {
+                    if (err) throw err;
+                    image.resize(1080, 1920).write(photoName);
+                });
+            });
+        }
+
+        function addFilterToImages(photoNames) {
+            // Set the filter.png image as a filter to the photos
+            var Jimp = require("jimp");
+            photoNames.forEach(function (photoName) {
+                Jimp.read(photoName, function (err, image) {
+                    if (err) throw err;
+                    Jimp.read('filter.png', function (err, filter) {
+                        if (err) throw err;
+                        image.composite(filter, 0, 0, {
+                            mode: Jimp.BLEND_SCREEN,
+                            opacityDest: 1,
+                            opacitySource: 1
+                        }).write(photoName);
+                    });
+                });
+            });
+        }
+
+        function sendEmail(data, phtoNames) {
+            // Send email with the photos
+            var nodemailer = require('nodemailer');
+            senderEmail = process.env.NG_EMAIL;
+            senderPassword = process.env.NG_EMAIL_PASSWORD;
+            var transporter = nodemailer.createTransport({
+                host: 'smtp.office365.com', // Office 365 server
+                port: 587, // secure SMTP
+                secure: false, // false for TLS - as a boolean not string
+                auth: {
+                    user: senderEmail,
+                    pass: senderPassword
+                }
+            });
+            
+            var fs = require('fs');
+
+            // Read subject and body from file
+            const subject = fs.readFileSync(__dirname + '\\emailSubject.txt', 'utf8');
+            const body = fs.readFileSync(__dirname + '\\emailBody.html', 'utf8');
+
+            var mailOptions = {
+                from: senderEmail,
+                to: data.email,
+                subject: subject,
+                text: body,
+                attachments: phtoNames.map(function (photoName) {
+                    return {
+                        path: photoName
+                    }
+                })
+            };
+
+            transporter.sendMail(mailOptions)
+                .then(function (info) {
+                    console.log('Email sent: ' + info.response);
+                    copyPhotosToNGFolder(phtoNames);
+                })
+                .catch(function (err) {
+                    console.log(err)
+                    copyPhotosToNGFolder(phtoNames);
+                });
+
+        }
+        
+        async function copyPhotosToNGFolder(photoNames) {
+            var fs = require('fs');
+            var path = require('path');
+            
+            // Get NG folder path from a system variable
+            var ngFolder = process.env.BASE + '\\IO\\Source1';
+            //var ngFolder = 'C:\\Users\\williamsm\\Documents\\personal_workspace\\novagenesis\\IO\\Source1';
+
+            if (!fs.existsSync(ngFolder)) {
+                fs.mkdirSync(ngFolder);
+            }
+            photoNames.forEach(function (photoName) {
+                var filePath = path.join(__dirname, photoName);
+                var newFilePath = path.join(ngFolder, photoName);
+                fs.rename(filePath, newFilePath, function (err) {
+                    if (err) throw err;
+                    console.log('File moved!');
+                });
+            });
+        }
+        
+        // Function to check form validity and enable/disable the "Começar" button
+        function checkFormValidity() {
+            const nameInput = document.getElementById('name');
+            const emailInput = document.getElementById('email');
+            const allowCaptureCheckbox = document.getElementById('allowCapture');
+            const capturarButton = document.getElementById('capturarButton');
+
+            if (nameInput.checkValidity() && emailInput.checkValidity() && allowCaptureCheckbox.checked) {
+                capturarButton.disabled = false;
+            } else {
+                capturarButton.disabled = true;
+            }
+        }
+
+        // Add event listeners to form fields to check validity on input changes
+        document.getElementById('name').addEventListener('input', checkFormValidity);
+        document.getElementById('email').addEventListener('input', checkFormValidity);
+        document.getElementById('allowCapture').addEventListener('change', checkFormValidity);
+
+        // Disabble form and last message
+        document.getElementById('formBox').style.display = 'none';
+        document.getElementById('lastMessage').style.display = 'none';
+
+        const WebCamera = require("webcamjs");
+        WebCamera.set({
+            width: 1280, // 1280
+            height: 720, // 720
+            crop_width: 1280,
+            crop_height: 720,
+            flip_horiz: true,
+            image_format: 'jpeg',
+            jpeg_quality: 100
+        });
+
+        WebCamera.attach('#videoCamera');
+
+        // Add filter to the camera preview
+        const filterPreview = document.getElementById('filterPreview');
+        filterPreview.style.backgroundImage = 'url("filter.png")';
+        filterPreview.style.backgroundSize = 'cover';
+        filterPreview.style.backgroundRepeat = 'no-repeat';
+        filterPreview.style.backgroundPosition = 'center';
+
+        // only for testing
+        //show camera preview
+        /* document.getElementById('cameraPreview').style.display = 'flex';
+        document.getElementById('videoCamera').style.display = 'block';
+        //show filter preview
+        document.getElementById('filterPreview').style.display = 'block';
+        // hide all other elements
+        document.getElementById('initialInfo').style.display = 'none';
+        document.getElementById('formBox').style.display = 'none';
+        document.getElementById('lastMessage').style.display = 'none';
+        document.getElementById('timer-container').style.display = 'none'; */
+
+    </script>
+</body>
+
+</html>

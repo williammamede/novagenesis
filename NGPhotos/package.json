@@ -1,0 +1,24 @@
+{
+  "name": "ngphotos",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "package": "electron-package .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^25.5.0",
+    "electron-package": "^0.1.0"
+  },
+  "dependencies": {
+    "jimp": "^0.22.10",
+    "node-webcam": "^0.8.2",
+    "nodemailer": "^6.9.4",
+    "sharp": "^0.32.4",
+    "webcamjs": "^1.0.26"
+  }
+}

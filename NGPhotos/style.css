@@ -1,0 +1,224 @@
+body {
+    background-image: url('background.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+#initialInfo {
+    width: 70vw;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+#initialInfo h1 {
+    font-family: "Roboto", sans-serif;
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+#initialInfo h2 {
+    font-family: "Roboto", sans-serif;
+    font-weight: normal;
+    color: #444;
+}
+
+#initialInfo p {
+    font-family: "Roboto", sans-serif;
+    font-weight: light;
+    color: #333;
+}
+
+#initialInfo button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#initialInfo button:hover {
+    background-color: #3e8e41;
+}
+
+#lastMessage {
+    width: 70vw;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+#lastMessage h1 {
+    font-family: "Roboto", sans-serif;
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+#lastMessage h2 {
+    font-family: "Roboto", sans-serif;
+    font-weight: normal;
+    color: #444;
+}
+
+#lastMessage p {
+    font-family: "Roboto", sans-serif;
+    font-weight: light;
+    color: #333;
+}
+
+#formBox {
+    width: 30vw;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+#formBox p {
+    font-size: 14px;
+    color: #444;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+label {
+    font-size: 14px;
+    color: #333;
+    margin: 5px 0;
+    text-align: left;
+}
+
+input[type="text"],
+input[type="email"] {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #333;
+}
+
+label[for="allowCapture"]::after {
+    content: "Estou de acordo com a Política de Privacidade do Inatel";
+    display: inline;
+    font-size: 12px;
+    color: #333;
+    vertical-align: middle;
+}
+
+.checkbox-container {
+    margin-top: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #3e8e41;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+img#webcamImage {
+    width: 100%;
+    margin-top: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+}
+
+/*Camera preview starting from the beginning*/
+#cameraPreview {
+    display: none;
+    justify-content: center;
+    position: relative;
+    width: 360px;
+    height: 640px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+}
+
+/*Video camera should have the 9:16 aspect ratio*/
+#videoCamera {
+    display: none;
+    position: absolute;
+    width: 360px;
+    height: 640px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    
+}
+
+/* filter.png should be placed over the video camera */
+#filterPreview {
+    display: none;
+    position: absolute;
+    width: 360px;
+    height: 640px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+}
+
+#timer-container {
+    position: absolute;
+    top: 20px; /* Ajuste a posição vertical do contador */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 40px; /* Ajuste o tamanho do contador */
+    text-align: center;
+    line-height: 100px;
+    display: none;
+}
+
+.blinking {
+    animation: blink 0.7s linear infinite;
+    background-image: none;
+    z-index: 1;
+}
+
+@keyframes blink {
+    0%, 100% { background-color: transparent; }
+    50% { background-color: #5549699a; }
+}
