@@ -2,43 +2,114 @@
 <html>
 
 <head>
-    <title>Webcam Capture</title>
-    <meta charset="utf-8">
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="Conheça o projeto NovaGenesis, uma arquitetura alternativa de Internet redesenhada do zero." />
+    <meta property="og:description" content="Conheça o projeto NovaGenesis, uma arquitetura alternativa de Internet redesenhada do zero." />
+    <meta property="og:title" content="NovaGenesis - Inatel" />
+    <meta property="og:site_name" content="NovaGenesis" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@inateloficial" />
+    <meta name="twitter:title" content="NovaGenesis - Inatel" />
+    <meta name="twitter:description" content="Conheça o projeto NovaGenesis, uma arquitetura alternativa de Internet redesenhada do zero." />
+    <meta name="author" content="Inatel" />
+    <meta property="og:image" content="https://inatel.br/novagenesis-futuro/images/seo-home.jpg" />
+    <meta property="og:image:secure_url" content="https://inatel.br/novagenesis-futuro/images/seo-home.jpg" />
+    <meta property="og:image:alt" content="Conheça o projeto NovaGenesis, uma arquitetura alternativa de Internet redesenhada do zero." />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta name="twitter:image" content="https://inatel.br/novagenesis-futuro/images/seo-home.jpg" />
+    <meta name="twitter:image:alt" content="Conheça o projeto NovaGenesis, uma arquitetura alternativa de Internet redesenhada do zero." />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:url" content="https://inatel.br/novagenesis-futuro/" />
+    <link rel="canonical" href="https://inatel.br/novagenesis-futuro/" />
+    <link href="https://inatel.br/novagenesis-futuro/images/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
+    <title>NovaGenesis | Inatel</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div>
         <!-- Intial text message with a button to listen to an audio -->
         <div id="initialInfo">
-            <!-- Page title in to the top of the container -->
-            <h1>NOVAGENESIS</h1>
-            <h2>Entrou na cápsula?</h2>
-            <h2>Próxima parada: Internet do Futuro</h2>
-            <p>O projeto NOVAGENESIS irá revolucionar o campo tecnológico redesenhando um modelo alternativo de Internet
-                do zero</p>
-            <button id="audioButton" type="button" onclick="playAudio()">Ouça o futuro</button>
+            <picture class="face">
+                <source type="image/webp" srcset="images/face.webp" media="(min-width: 1367px)" width="860" height="491">
+                <source type="image/webp" srcset="images/face-560.webp" media="(min-width: 367px)" width="560" height="319">
+                <source type="image/webp" srcset="images/face-320.webp" media="(min-width: 1px)" width="320" height="182">
+                
+                <source type="image/png" srcset="images/face.webp" media="(min-width: 1367px)" width="860" height="491">
+                <source type="image/png" srcset="images/face-560.webp" media="(min-width: 367px)" width="560" height="319">    
+                <source type="image/png" srcset="images/face-320.webp" media="(min-width: 1px)" width="320" height="182">
+                
+                <img src="images/face.png" alt="face" draggable="false">
+            </picture>
+            <div class="init-up">
+                <span class="ocr">ENTROU NA CÁPSULA?</span>
+                <span class="ocr">PRÓXIMA PARADA: INTERNET DO FUTURO!</span>
+            </div>
+            <h1>
+                <picture>
+                    <source type="image/webp" srcset="images/novagenesis.webp" media="(min-width: 1367px)" width="860" height="491">
+                    <source type="image/webp" srcset="images/novagenesis-560.webp" media="(min-width: 367px)" width="560"
+                        height="319">
+                    <source type="image/webp" srcset="images/novagenesis-320.webp" media="(min-width: 1px)" width="320"
+                        height="182">
+            
+                    <source type="image/png" srcset="images/novagenesis.webp" media="(min-width: 1367px)" width="860" height="491">
+                    <source type="image/png" srcset="images/novagenesis-560.webp" media="(min-width: 367px)" width="560"
+                        height="319">
+                    <source type="image/png" srcset="images/novagenesis-320.webp" media="(min-width: 1px)" width="320" height="182">
+            
+            
+                    <source type="image/webp" srcset="images/novagenesis.webp">
+                    <img src="images/novagenesis.png" alt="Novagenesis" draggable="false">
+                </picture>
+            </h1>
+            <p class="init-down">
+                O PROJETO NOVAGENESIS IRÁ REVOLUCIONAR
+                <strong>O CAMPO TECNOLÓGICO REDESENHANDO UM</strong>
+                MODELO ALTERNATIVO DE INTERNET DO ZERO
+            </p>
+
+            <button id="audioButton" type="button" onclick="playAudio()" class="audio">OUÇA O FUTURO</button>
         </div>
         <!-- Form to capture the name and email -->
-        <form id="formBox">
-            <p>Preencha seus dados abaixo. Ao clicar em "Começar", você acionará a câmera que a cada 2 segundos, vai
-                tirar uma nova foto sua.</p>
-            <label for="name">Nome:</label>
-            <input type="text" id="name" name="name" required>
-            <label for="email">E-mail:</label>
-            <input type="email" id="email" name="email" required>
-            <div class="checkbox-container">
-                <input type="checkbox" id="allowCapture" required>
-                <label for="allowCapture"></label>
-            </div>
-            <button type="button" id="capturarButton" onclick="startCapture()" disabled>Começar</button>
-        </form>
+        <div id="formBox">
+            <form action="">
+                <div class="input">
+                    <label for="name">Coloque seu nome</label>
+                    <input type="text" name="name" id="name" tabindex="0" value="">
+                </div>
+        
+                <div class="input">
+                    <label for="email">Coloque seu melhor email</label>
+                    <input type="email" name="email" id="email" tabindex="0" value="">
+                </div>
+        
+                <p class="mb60">Ao enviar, você aceita a <a href="https://inatel.br/politica-privacidade" target="_blank"
+                        tabindex="0">Política de Privacidade</a> do Inatel</p>
+        
+                <p class="ocr">Bora fazer parte disso?</p>
+                <p class="ocr">Prepare teu melhor sorriso e aperte COMEÇAR.</p>
+                <p class="ocr">A cada 2 segundos a câmera tirará uma nova foto sua!</p>
+        
+                <button type="button" id="capturarButton" onclick="startCapture()" class="audio" disabled>Começar</button>
+            </form>
+        </div>
 
         <!-- Last meessage -->
-        <div id="lastMessage">
-            <h1>Agradecemos sua participação!</h1>
-            <h2>Saia da cápsula e veja sua foto no telão da Novagenesis e conte para todos.</h2>
-            <h1>Bom evento!</h1>
+        <div id="lastMessage" class="congratulation">
+            <h2>AGRADECEMOS A SUA PARTICIPAÇÃO!</h2>
+        
+            <p>Saia da Cápsula, procure sua foto no telão da NovaGenesis e conte para todos.</p>
+        
+            <p><strong>Bom evento</strong></p>
         </div>
     </div>
     <div id="cameraPreview">
@@ -56,6 +127,8 @@
         function playAudio() {
             // Disable the button
             disableAudioButton();
+            // Disabe form button
+            disableFormButton();
             // open audio from local file audioTest.mp3
             const audio = new Audio('audioTest.mp3');
             audio.play();
@@ -71,26 +144,29 @@
         function disableAudioButton() {
             const audioButton = document.getElementById('audioButton');
             audioButton.disabled = true;
-            audioButton.style.backgroundColor = '#ccc';
             audioButton.style.cursor = 'not-allowed';
+        }
+
+        function disableFormButton() {
+            const formButton = document.getElementById('capturarButton');
+            formButton.disabled = true;
+            formButton.style.cursor = 'not-allowed';
         }
 
         function enableAudioButton() {
             const audioButton = document.getElementById('audioButton');
             audioButton.disabled = false;
-            audioButton.style.backgroundColor = '#4CAF50';
             audioButton.style.cursor = 'pointer';
+        }
+
+        function enableFormButton() {
+            const formButton = document.getElementById('capturarButton');
+            formButton.disabled = false;
+            formButton.style.cursor = 'pointer';
         }
 
         // Function to start capturing the webcam image
         function startCapture() {
-            // Check if the "Permitir tirar a foto" checkbox is checked
-            const allowCaptureCheckbox = document.getElementById('allowCapture');
-            if (!allowCaptureCheckbox.checked) {
-                alert('Por favor, marque a caixa "Permitir tirar a foto" antes de começar.');
-                return;
-            }
-
             startPhotoCaptureTimer();
         }
 
@@ -130,7 +206,7 @@
                     document.getElementById('timer-container').style.display = 'none';
 
                     // Show last message for 10 seconds
-                    document.getElementById('lastMessage').style.display = 'block';
+                    document.getElementById('lastMessage').style.display = 'flex';
                     // Process images
                     const imageProccessing = await processImages(fileNames);
                     console.log('images processed');
@@ -164,7 +240,6 @@
                 clearInterval(intervalId);
                 document.getElementById('name').value = '';
                 document.getElementById('email').value = '';
-                document.getElementById('allowCapture').checked = false;
                 checkFormValidity()
                 timerContainer.style.display = 'none';
                 setTimeout(function () {
@@ -315,8 +390,8 @@
             var fs = require('fs');
 
             // Read subject and body from file
-            const subject = fs.readFileSync(__dirname + '/emailSubject.txt', 'utf8');
-            const body = fs.readFileSync(__dirname + '/emailBody.html', 'utf8');
+            const subject = fs.readFileSync(__dirname + '\\emailSubject.txt', 'utf8');
+            const body = fs.readFileSync(__dirname + '\\emailBody.html', 'utf8');
 
             var mailOptions = {
                 from: senderEmail,
@@ -347,8 +422,8 @@
             var path = require('path');
             
             // Get NG folder path from a system variable
-            var ngFolder = process.env.BASE + '/IO/Source1';
-            //var ngFolder = 'C:/Users/williamsm/Documents/personal_workspace/novagenesis/IO/Source1';
+            var ngFolder = process.env.BASE + '\\IO\\Source1';
+            //var ngFolder = 'C:\\Users\\williamsm\\Documents\\personal_workspace\\novagenesis\\IO\\Source1';
 
             if (!fs.existsSync(ngFolder)) {
                 fs.mkdirSync(ngFolder);
@@ -367,26 +442,38 @@
         function checkFormValidity() {
             const nameInput = document.getElementById('name');
             const emailInput = document.getElementById('email');
-            const allowCaptureCheckbox = document.getElementById('allowCapture');
             const capturarButton = document.getElementById('capturarButton');
 
-            if (nameInput.checkValidity() && emailInput.checkValidity() && allowCaptureCheckbox.checked) {
-                capturarButton.disabled = false;
+            if (nameInput.checkValidity() && emailInput.checkValidity()) {
+                enableFormButton();
             } else {
-                capturarButton.disabled = true;
+                disableFormButton();
             }
         }
 
         // Add event listeners to form fields to check validity on input changes
         document.getElementById('name').addEventListener('input', checkFormValidity);
         document.getElementById('email').addEventListener('input', checkFormValidity);
-        document.getElementById('allowCapture').addEventListener('change', checkFormValidity);
 
         // Disabble form and last message
         document.getElementById('formBox').style.display = 'none';
         document.getElementById('lastMessage').style.display = 'none';
 
         const WebCamera = require("webcamjs");
+
+        // Enumerate devices and select the first camera
+        navigator.mediaDevices.enumerateDevices()
+            .then(function(devices) {
+            devices.forEach(function(device) {
+                if (device.kind === 'videoinput') {
+                console.log(device.label + " id = " + device.deviceId);
+                }
+            });
+            })
+            .catch(function(err) {
+            console.log(err.name + ": " + err.message);
+            });
+
         WebCamera.set({
             width: 1280, // 1280
             height: 720, // 720
@@ -394,7 +481,12 @@
             crop_height: 720,
             flip_horiz: true,
             image_format: 'jpeg',
-            jpeg_quality: 100
+            jpeg_quality: 100/* ,
+            constraints: {
+                deviceId: {
+                    exact: 'e4e359fe074fede1cbfa27c0fb9e337b4224fc393ecc6a92009506dde407019e'
+                }
+            } */
         });
 
         WebCamera.attach('#videoCamera');
@@ -408,15 +500,15 @@
 
         // only for testing
         //show camera preview
-        /* document.getElementById('cameraPreview').style.display = 'flex';
-        document.getElementById('videoCamera').style.display = 'block';
+        document.getElementById('cameraPreview').style.display = 'none';
+        document.getElementById('videoCamera').style.display = 'none';
         //show filter preview
-        document.getElementById('filterPreview').style.display = 'block';
+        document.getElementById('filterPreview').style.display = 'none';
         // hide all other elements
         document.getElementById('initialInfo').style.display = 'none';
-        document.getElementById('formBox').style.display = 'none';
+        document.getElementById('formBox').style.display = 'flex';
         document.getElementById('lastMessage').style.display = 'none';
-        document.getElementById('timer-container').style.display = 'none'; */
+        document.getElementById('timer-container').style.display = 'none';
 
     </script>
 </body>
