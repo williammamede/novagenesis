@@ -1,20 +1,28 @@
 {
   "name": "ngphotos",
   "version": "1.0.0",
-  "description": "",
+  "description": "NG Application which takes pictures",
   "main": "index.js",
   "scripts": {
-    "start": "electron .",
-    "package": "electron-package .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "make": "electron-forge make"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@electron-forge/cli": "^6.3.0",
+    "@electron-forge/maker-deb": "^6.3.0",
+    "@electron-forge/maker-rpm": "^6.3.0",
+    "@electron-forge/maker-squirrel": "^6.3.0",
+    "@electron-forge/maker-zip": "^6.3.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^6.3.0",
     "electron": "^25.5.0",
     "electron-package": "^0.1.0"
   },
   "dependencies": {
+    "electron-squirrel-startup": "^1.0.0",
     "jimp": "^0.22.10",
     "node-webcam": "^0.8.2",
     "nodemailer": "^6.9.4",

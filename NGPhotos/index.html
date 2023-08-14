@@ -315,8 +315,8 @@
             var fs = require('fs');
 
             // Read subject and body from file
-            const subject = fs.readFileSync(__dirname + '\\emailSubject.txt', 'utf8');
-            const body = fs.readFileSync(__dirname + '\\emailBody.html', 'utf8');
+            const subject = fs.readFileSync(__dirname + '/emailSubject.txt', 'utf8');
+            const body = fs.readFileSync(__dirname + '/emailBody.html', 'utf8');
 
             var mailOptions = {
                 from: senderEmail,
@@ -347,8 +347,8 @@
             var path = require('path');
             
             // Get NG folder path from a system variable
-            var ngFolder = process.env.BASE + '\\IO\\Source1';
-            //var ngFolder = 'C:\\Users\\williamsm\\Documents\\personal_workspace\\novagenesis\\IO\\Source1';
+            var ngFolder = process.env.BASE + '/IO/Source1';
+            //var ngFolder = 'C:/Users/williamsm/Documents/personal_workspace/novagenesis/IO/Source1';
 
             if (!fs.existsSync(ngFolder)) {
                 fs.mkdirSync(ngFolder);
