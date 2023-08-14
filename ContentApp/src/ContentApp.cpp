@@ -25,7 +25,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef _CONTENTAPP_H"
+#ifndef _CONTENTAPP_H
 #include "ContentApp.h"
 #endif
 
@@ -33,20 +33,48 @@
 #include "Core.h"
 #endif
 
+#ifndef LISTEN_H
+#include "ServeNgApiEndpoints.h"
+#endif
+
+#define OK 0
+
+#include <thread>
+
 ContentApp::ContentApp (string _LN, string _Role, key_t _Key, string _Path) : Process (_LN, _Key, _Path)
 {
-  Block *PCoreB = 0;
-  string CoreLN = "Core";
-  Role = _Role;
+	Block *PCoreB = 0;
+    string CoreLN = "Core";
+    Role = _Role;
 
-  NewBlock (CoreLN, PCoreB);
+    NewBlock (CoreLN, PCoreB);
+	// If the role is Source executeNGApiEndpoint will not be called
+	if (_Role == "Repository")
+	{
+		std::thread ngThread(&ContentApp::executeNGProcess, this);
+		std::thread apiThread(&ContentApp::executeNGApiEndpoint, this);
 
-  // Run the base class GW
-  RunGateway ();
+		ngThread.join();
+		apiThread.join();
+	} else {
+		std::thread ngThread(&ContentApp::executeNGProcess, this);
+		ngThread.join();
+	}
 }
 
 ContentApp::~ContentApp ()
 {
+}
+
+void ContentApp::executeNGProcess()
+{
+    // Run the base class GW
+    RunGateway();
+}
+
+void ContentApp::executeNGApiEndpoint()
+{
+    ServeNgApiEndpoints serveNgApiEndpoints;
 }
 
 // Allocate a new block based on a name and add a Block on Blocks container

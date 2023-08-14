@@ -224,6 +224,7 @@ class Core : public Block {
   friend class CoreRunContentPublish01;
   friend class CoreRunPublish02;
   friend class CoreRunPublish03;
+  friend class CoreRunPublish04;
   friend class CoreNotifyS01; // TODO: FIXP/Update - Added in September 2021
 };
 

@@ -1,12 +1,12 @@
 /*
 	NovaGenesis
 	
-	Name:		CoreRunEvaluate01
-	Object:		CoreRunEvaluate01
-	File:		CoreRunEvaluate01.h
+	Name:		Application's core action to prepare a ng -pub --notify
+	Object:		CoreRunPublish04
+	File:		CoreRunPublish04.h
 	Author:		Antonio Marcos Alberti
 	Date:		05/2021
-	Version:	0.1
+	Version:	0.2
 
   	Copyright (C) 2021  Antonio Marcos Alberti
 
@@ -25,8 +25,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef _CORERUNEVALUATE01_H
-#define _CORERUNEVALUATE1_H
+#ifndef _CORERUNPUBLISH03_H
+#define _CORERUNPUBLISH03_H
 
 #ifndef _STRING_H
 #include <string>
@@ -56,32 +56,26 @@
 #include <unistd.h>
 #endif
 
-#ifndef _TUPLE_H
-#include "Tuple.h"
-#endif
-
 #define ERROR 1
 #define OK 0
 
 class Block;
 
-class CoreRunEvaluate01 : public Action {
+class CoreRunPublish04 : public Action {
  public:
 
   // Constructor
-  CoreRunEvaluate01 (string _LN, Block *_PB, MessageBuilder *_PMB);
+  CoreRunPublish04 (string _LN, Block *_PB, MessageBuilder *_PMB);
 
   // Destructor
-  virtual ~CoreRunEvaluate01 ();
+  virtual ~CoreRunPublish04 ();
 
   // Run the actions behind a received message
   virtual int
   Run (Message *_ReceivedMessage, CommandLine *_PCL, vector<Message *> &ScheduledMessages, Message *&InlineResponseMessage);
 
-  private:
-  void validateWebRequest(string filePath);
-  bool fileExists(const std::string& name);
-  std::vector<std::string> webRequestsToBeSent();
+  // Auxiliary function
+  void CreatePublishMessage (string _FileName, vector<Tuple *> &_PubNotify, vector<Tuple *> &_SubNotify);
 };
 
 #endif

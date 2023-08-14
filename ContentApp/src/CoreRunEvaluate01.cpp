@@ -41,6 +41,18 @@
 #include "GW.h"
 #endif
 
+#include <WebPageRequester.h>
+
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include <stdio.h>
+#include <string.h>
+
+#include <dirent.h>
+#include <thread>
+
+using namespace rapidjson;
+
 //#define DEBUG // To follow message processing
 
 CoreRunEvaluate01::CoreRunEvaluate01 (string _LN, Block *_PB, MessageBuilder *_PMB) : Action (_LN, _PB, _PMB)
@@ -739,6 +751,50 @@ CoreRunEvaluate01::Run (Message *_ReceivedMessage, CommandLine *_PCL, vector<Mes
 							}
 						}
 					}
+					// Verify if the received file is a web request
+					validateWebRequest(PS->FileName);
+
+					std::vector<std::string> webRequestToPublish = webRequestsToBeSent();
+
+					// For each request returned publish a NG message
+					for (unsigned int i = 0; i < webRequestToPublish.size(); i++) {
+						Run = ScheduledMessages.at (0);
+						if (Run != 0){
+							// Adding a ng -run --publish command line
+							Run->NewCommandLine("-run", "--publish", "0.4", PCL);
+
+							PCL->NewArgument(3);
+
+							// Use the stored Subscription to fulfill the command line
+							PCL->SetArgumentElement(0, 0, Type);
+
+							PCL->SetArgumentElement(0, 1, PB->IntToString(Index));
+
+							PCL->SetArgumentElement(0, 2, webRequestToPublish.at(i));
+
+							ClearScheduledMessage = false;
+						}
+					}
+
+					/*//publish a file
+					Run = ScheduledMessages.at (0);
+					if (Run != 0)
+					{
+						PB->S << Offset1 << "(Publish a test file)" << endl;
+
+						// Adding a ng -run --publish command line
+						Run->NewCommandLine ("-run", "--publish", "0.4", PCL);
+
+						PCL->NewArgument (3);
+
+						// Use the stored Subscription to fulfill the command line
+						PCL->SetArgumentElement (0, 0, Type);
+
+						PCL->SetArgumentElement (0, 1, PB->IntToString (Index));
+
+						PCL->SetArgumentElement (0, 2, "testFile.json");
+
+					} */
 
 				  F1.CloseFile ();
 				}
@@ -809,4 +865,105 @@ CoreRunEvaluate01::Run (Message *_ReceivedMessage, CommandLine *_PCL, vector<Mes
 #endif
 
   return Status;
+}
+
+/**
+ * @brief Verifies if the received file is a web request, if yes, it will be processed
+ * 
+ * @param filePath 
+ */
+
+void CoreRunEvaluate01::validateWebRequest(string filePath)
+{
+	PB->S << "(Validating if the received file is a web request)" << endl;
+	// Check if the file name contains the string "webrequest"
+	if (filePath.find("webRequest") != string::npos) {
+		PB->S << "(The received file is a web request)" << endl;
+		std::string fileFullPath = PB->GetPath() + filePath;
+		// Verify if the file was already created, and if not wait for it
+		while (!fileExists(fileFullPath)) {
+			PB->S << "(Waiting for the web request file to be created)" << endl;
+			sleep(1);
+		}
+
+		// open and read the json file, and get the content under the path key
+		ifstream webRequestFile;
+		string webRequestContent;
+		try {
+			// open the file
+			
+			webRequestFile.open(fileFullPath);
+			// read the file content
+			webRequestContent = string((istreambuf_iterator<char>(webRequestFile)),
+				istreambuf_iterator<char>());
+			// close the file
+			webRequestFile.close();
+		} catch (exception e) {
+			PB->S << "(ERROR: Unable to open the web request file)" << endl;
+			return;
+		}
+		// parse the json string
+		Document document;
+		document.Parse(webRequestContent.c_str());
+		// get the path key
+		string path = document["path"].GetString();
+		WebPageRequester webPageRequester;
+		// Perform the web requester requestWebContent in a separate thread
+		std::thread webRequestThread(&WebPageRequester::requestWebContent, &webPageRequester, path);
+		// wait for the thread to finish
+		webRequestThread.join();
+
+		webRequestContent.clear();
+	}
+}
+
+/**
+ * @brief Verifies if the file exists
+ * 
+ * @param filePath
+ * 
+ * @return true if the file exists
+ */
+bool CoreRunEvaluate01::fileExists(const string& filePath) {
+	std::ifstream file(filePath);
+    return file.good();
+}
+
+/**
+ * @brief Returns the web requests to be sent
+ * 
+ * @return vector<string> 
+ */
+vector<string> CoreRunEvaluate01::webRequestsToBeSent() {
+	// Get all files in the path wich contains webRequest in the name
+	PB->S << "(Getting all Web Requests to be sent)" << endl;
+
+	vector<string> webRequests;
+	string path = PB->GetPath();
+	string webRequestFileName = "webRequest";
+	string extension = ".json";
+	string filePath;
+	DIR *dir;
+	struct dirent *ent;
+
+	if ((dir = opendir(path.c_str())) != NULL) {
+		// loop over all files in the path
+		while ((ent = readdir(dir)) != NULL) {
+			// get the file name
+			string fileName = ent->d_name;
+			// verify if the file name contains the string "webRequest"
+			if (fileName.find(webRequestFileName) != string::npos) {
+				// verify if the file name contains the extension ".json"
+				if (fileName.find(extension) != string::npos) {
+					// add the file path to the vector
+					webRequests.push_back(fileName);
+				}
+			}
+		}
+		closedir(dir);
+	} else {
+		PB->S << "(ERROR: Unable to open the directory)" << endl;
+	}
+
+	return webRequests;
 }

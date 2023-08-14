@@ -155,6 +155,7 @@ Core::Core (string _LN, Process *_PP, unsigned int _Index, GW *_PGW, HT *_PHT, s
   NewAction ("-run --publish 0.1", PA);
   NewAction ("-run --publish 0.2", PA);
   NewAction ("-run --publish 0.3", PA);
+  NewAction ("-run --publish 0.4", PA);
   NewAction ("-run --subscribe 0.1", PA);
   NewAction ("-run --periodic 0.1", PA);
   NewAction ("-run --contentpublish 0.1", PA);

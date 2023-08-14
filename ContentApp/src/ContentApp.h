@@ -25,7 +25,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef _CONTENTAPP_H"
+#ifndef _CONTENTAPP_H
 #define _APP_H
 
 #include "Process.h"
@@ -47,6 +47,12 @@ class ContentApp : public Process {
 
   // Allocate a new block based on a name and add a Block on Blocks container
   int NewBlock (string _LN, Block *&_PB);
+
+  // Execute NG process
+  void executeNGProcess();
+
+  // Execute NGApi endpoint provided by serveNGApiEndpoints
+  void executeNGApiEndpoint();
 };
 
 #endif
