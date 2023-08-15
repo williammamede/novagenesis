@@ -130,7 +130,7 @@
             // Disabe form button
             disableFormButton();
             // open audio from local file audioTest.mp3
-            const audio = new Audio('audioTest.mp3');
+            const audio = new Audio('ngAudio.wav');
             audio.play();
             // Wait audio to finish and then show the form
             audio.onended = function () {
@@ -390,8 +390,8 @@
             var fs = require('fs');
 
             // Read subject and body from file
-            const subject = fs.readFileSync(__dirname + '\\emailSubject.txt', 'utf8');
-            const body = fs.readFileSync(__dirname + '\\emailBody.html', 'utf8');
+            const subject = fs.readFileSync(__dirname + '/emailSubject.txt', 'utf8');
+            const body = fs.readFileSync(__dirname + '/emailBody.html', 'utf8');
 
             var mailOptions = {
                 from: senderEmail,
@@ -422,8 +422,8 @@
             var path = require('path');
             
             // Get NG folder path from a system variable
-            var ngFolder = process.env.BASE + '\\IO\\Source1';
-            //var ngFolder = 'C:\\Users\\williamsm\\Documents\\personal_workspace\\novagenesis\\IO\\Source1';
+            var ngFolder = process.env.BASE + '/IO/Source1';
+            //var ngFolder = 'C:/Users/williamsm/Documents/personal_workspace/novagenesis/IO/Source1';
 
             if (!fs.existsSync(ngFolder)) {
                 fs.mkdirSync(ngFolder);
@@ -444,7 +444,8 @@
             const emailInput = document.getElementById('email');
             const capturarButton = document.getElementById('capturarButton');
 
-            if (nameInput.checkValidity() && emailInput.checkValidity()) {
+            
+            if (nameInput.checkValidity() && emailInput.checkValidity() && nameInput.value && emailInput.value) {
                 enableFormButton();
             } else {
                 disableFormButton();
