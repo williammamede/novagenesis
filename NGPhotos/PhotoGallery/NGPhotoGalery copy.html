@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Photo Gallery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url(INATEL\ -\ Nova\ Genesis\ -\ TV\ -\ 1920x1080px.jpeg);
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            width: 20vw;
+            height: 10vh;
+            margin-top: 20px;
+        }
+
+        .logo img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-left: 10px;
+            color: white;
+        }
+
+        .gallery-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 5px;
+            border-radius: 5px;
+            width: 90vw;
+        }
+
+        .gallery-item {
+            margin: 3px;
+            overflow: hidden;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .gallery-item img {
+            object-fit: cover;
+            width: 100%;
+            height: auto;
+        }
+
+        @media only screen and (min-width: 768px) {
+            .gallery-item img {
+                max-width: 240px;
+                height: auto;
+            }
+        }
+
+        @media only screen and (min-width: 992px) {
+            .gallery-item img {
+                max-width: 320px;
+                height: auto;
+            }
+        }
+
+        @media only screen and (min-width: 1200px) {
+            .gallery-item img {
+                max-width: 240px;
+                height: auto;
+            }
+        }
+
+        .qr-code-container {
+            position: fixed;
+            bottom: 5vh;
+            right: 5vw;
+            width: 10vw;
+            height: 10vw;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            background-image: url(qrcode_www.inatel.br.png);
+            background-size: cover;
+        }
+
+        .qr-code-label {
+            position: fixed;
+            top: calc(5vh + 10vw); /* equal to bottom + height of .qr-code-container */
+            right: 5vw; /* same as .qr-code-container */
+            font-size: 2vw; /* relative to viewport width */
+            color: #ffffff;
+            transform: translateY(10vw); /* move down by 10vw */
+        }
+
+    </style>
+    <script>
+        // JavaScript code to change gallery images every 2 second
+        document.addEventListener('DOMContentLoaded', async function() {
+        let csv = await getCsvFile();
+            const galleryItems = document.querySelectorAll('.gallery-item img');
+            const photoShift = galleryItems.length;
+            let timeToChange = 2000;
+            galleryItems.forEach((galleryItem, id) => {
+                timeToChange += 2000;
+                setInterval(async function () {
+                    csv = await getCsvFile();
+                    const currentImg = galleryItem.getAttribute('src');
+                    let nextImage;
+                    if (currentImg == null) {
+                        nextImage = csv.length > id ? csv[id] : csv[csv.length - 1];
+                    } else {
+                        const currentImgId = csv.findIndex(row => currentImg.includes(row));
+                        const shift = currentImgId + photoShift;
+                        nextImage = csv.length > shift ? csv[shift] : csv[csv.length - 1];
+                    }
+                    galleryItem.setAttribute('src', `./${nextImage}`);
+                }, timeToChange);
+            });
+        });
+
+
+        async function getCsvFile() {
+            // Avoid cors error
+            const path = 'http://127.0.0.1:5001/getPhotosNames';
+
+            // Get the content from path and mond the CSV
+            // CSV should be a list like the following
+            // ['photo1.jpg', 'photo2.jpg', 'photo3.jpg']
+            const csv = [];
+            const options = {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            try {
+                // Wait for the fetch promise to resolve
+                const response = await fetch(path, options);
+                // Parse the response as JSON
+                const data = await response.json();
+                // Loop through the data array and push each value to the CSV array
+                data.forEach(row => {
+                    csv.push(row);
+                });
+            } catch (error) {
+                console.log(error);
+            }
+
+            return csv;
+        }
+
+    </script>
+</head>
+<body>
+
+    <div class="gallery-container">
+        <div class="gallery-item">
+            <img alt="Photo 1">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 2">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 3">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 4">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 5">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 6">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 7">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 8">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 9">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 10">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 11">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 12">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 13">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 14">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 15">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 16">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 17">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 18">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 19">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 20">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 21">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 22">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 23">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 24">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 25">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 26">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 27">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 28">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 29">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 30">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 31">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 32">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 33">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 34">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 35">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 36">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 37">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 38">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 39">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 40">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 41">
+        </div>
+        <div class="gallery-item">
+            <img alt="Photo 42"> 
+        </div>        
+    </div>
+
+    <!-- <div class="qr-code-container"></div> -->
+
+    <!-- <div class="qr-code-label">
+        Deseja saber mais sobre NovaGenesis? Acesse
+    </div> -->
+</body>
+</html>

@@ -1,0 +1,290 @@
+@charset "utf-8";
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap');
+
+
+@font-face {
+font-family: 'OCR';
+src: url("ocraext.eot");
+src: url('ocraext.eot?#iefix') format('embedded-opentype'),
+url("ocraext.ttf") format("truetype");
+font-weight: normal;
+font-style: normal;
+font-display: swap;
+}
+
+:root {
+  --white: #f0f0f9;
+  --blue: #02D8FA;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+*, button, input {
+    font-family: 'Montserrat', sans-serif;
+}
+
+body {
+    color: var(--white);
+    background-color: #592E66;
+    background-image: url('images/background-3000.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: top center;
+    width: 100%;
+}
+
+@media screen and (max-width: 1920px) {
+  body {
+    background-image: url('images/background-1920.jpg');
+  }
+}
+
+@media screen and (max-width: 1366px) {
+  body {
+    background-image: url('images/background-1366.jpg');
+  }
+}
+
+@media screen and (max-width: 768px) {
+  body {
+    background-image: url('images/background-768.jpg');
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body {
+    background-image: url('images/background-480.jpg');
+  }
+}
+
+@media screen and (max-width: 360px) {
+  body {
+    background-image: url('images/background-360.jpg');
+  }
+}
+
+main, header, section, form {
+  width: 100%; 
+}
+
+.ocr {
+  font-family: 'OCR', sans-serif;
+}
+
+p {
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+/* HEADER */
+
+.face {
+  display:block; 
+  text-align: center;
+}
+
+.face img {
+  margin: 0 auto; 
+  text-align: center;
+}
+
+.init-up {
+  margin-bottom: -20px;
+  margin-top: -60px;
+}
+
+.init-up span{
+  font-size: 1.4rem;
+  text-align: center;
+  display: block;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+h1 {
+  text-align: center;
+}
+
+h1 img {
+  margin: 0 auto;
+}
+
+.init-down {
+  letter-spacing: .4rem;
+  margin-top: -20px;
+}
+
+.init-down strong {
+  display:block;
+  margin: 5px auto;
+}
+
+.init-in span {
+  display:block;
+}
+
+.audio {
+  background-color: transparent;
+  color: var(--white);
+  text-decoration: none;
+  text-align: center;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  padding: 13px 16px 11px 16px;
+  border: 1px solid var(--blue);
+  max-width: 220px;
+  border-radius: 42px;
+  margin: 60px auto;
+  font-weight: 700;
+  transition: .4s;
+}
+
+.audio:hover {
+  background-color: var(--blue);
+}
+
+
+/* FORM SECTION */
+
+form {
+  margin-top:260px;
+  margin-bottom: 260px;
+}
+
+.input {
+  display:flex; 
+  flex-direction: column;
+  text-align: center;
+  justify-content: center;
+}
+
+label {
+  font-size: 1.7rem;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+input {
+  border:none; 
+  background: transparent;
+  padding: 10px;
+  font-size: 1.5rem;
+  width: 100%; 
+  max-width: 680px;
+  margin: 10px auto 40px auto;
+  border-bottom: 1px solid rgba(255,255,255,.5);
+  text-align: center;
+  color:var(--white);
+  transition: .4s;
+}
+
+input:hover, input:focus {
+  opacity: 1;
+  outline: none;
+  border-bottom: 1px solid  var(--blue);
+  background: rgba(0,0,0,.2);
+}
+
+form a {
+  font-size: 1.5rem;
+  color: var(--white);
+}
+
+form a:hover {
+  color: var(--blue)
+}
+
+.mb60 {
+  margin-bottom: 60px;
+}
+
+input[type=submit] {
+  background-color: transparent;
+  color: var(--white);
+  text-decoration: none;
+  text-align: center;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  padding: 13px 16px 11px 16px;
+  border: 1px solid var(--blue);
+  max-width: 220px;
+  border-radius: 42px;
+  margin: 60px auto;
+  font-weight: 700;
+  transition: .4s;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+input[type=submit]:hover {
+  background-color: var(--blue);
+}
+
+/* Congratulations SECTION */
+
+.congratulation {
+  width: 100%; 
+  max-width: 380px;
+  margin: 0 auto 460px auto;
+  text-align: center;
+}
+
+.congratulation h2 {
+  font-size: 2.2rem;
+  color:var(--white);
+  margin-bottom: 30px;
+  font-weight: 700;
+}
+
+.congratulation p {
+  margin-bottom:  30px;
+}
+
+@media screen and (max-width: 1366px) {
+  .congratulation {
+    margin: 0 auto 240px auto;
+  }
+}
+
+@media screen and (max-width: 768px){
+  main {
+    padding: 0 20px;
+  }
+  .init-up {
+    margin-top: -30px;
+    margin-bottom: 0;
+  }
+  .init-down {
+    margin-top: 0;
+    letter-spacing: .1rem;
+  }
+  .init-down strong {
+    display: block;
+    margin: 15px auto;
+  }
+}
+
+
+::-webkit-scrollbar {
+  width: 4px;
+  background: rgba(255,255,255,0);
+
+}
+::-webkit-scrollbar-thumb {
+  background: #bf398e;
+  border-radius: 10px;
+  border: 1px solid #bf398e;
+}

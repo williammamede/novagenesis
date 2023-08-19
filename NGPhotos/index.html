@@ -130,7 +130,7 @@
             // Disabe form button
             disableFormButton();
             // open audio from local file audioTest.mp3
-            const audio = new Audio('ngAudio.wav');
+            const audio = new Audio('audioTest.mp3');
             audio.play();
             // Wait audio to finish and then show the form
             audio.onended = function () {
@@ -358,16 +358,9 @@
             // Set the filter.png image as a filter to the photos
             var Jimp = require("jimp");
             photoNames.forEach(function (photoName) {
-                Jimp.read(photoName, function (err, image) {
+                Jimp.read('filter.png', function (err, filter) {
                     if (err) throw err;
-                    Jimp.read('filter.png', function (err, filter) {
-                        if (err) throw err;
-                        image.composite(filter, 0, 0, {
-                            mode: Jimp.BLEND_SCREEN,
-                            opacityDest: 1,
-                            opacitySource: 1
-                        }).write(photoName);
-                    });
+                    image.composite(filter, 0, 0).write("output.jpg");
                 });
             });
         }
@@ -390,8 +383,8 @@
             var fs = require('fs');
 
             // Read subject and body from file
-            const subject = fs.readFileSync(__dirname + '/emailSubject.txt', 'utf8');
-            const body = fs.readFileSync(__dirname + '/emailBody.html', 'utf8');
+            const subject = fs.readFileSync(__dirname + '\\emailSubject.txt', 'utf8');
+            const body = fs.readFileSync(__dirname + '\\emailBody.html', 'utf8');
 
             var mailOptions = {
                 from: senderEmail,
@@ -422,8 +415,8 @@
             var path = require('path');
             
             // Get NG folder path from a system variable
-            var ngFolder = process.env.BASE + '/IO/Source1';
-            //var ngFolder = 'C:/Users/williamsm/Documents/personal_workspace/novagenesis/IO/Source1';
+            var ngFolder = process.env.BASE + '\\IO\\Source1';
+            //var ngFolder = 'C:\\Users\\williamsm\\Documents\\personal_workspace\\novagenesis\\IO\\Source1';
 
             if (!fs.existsSync(ngFolder)) {
                 fs.mkdirSync(ngFolder);

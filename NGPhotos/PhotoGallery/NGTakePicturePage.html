@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Webcam Capture</title>
+    <style>
+        body {
+            background-image: url('https://www.inatel.br/ictlab/images/background-ictlab.jpg');
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #initialInfo {
+            width: 70vw;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        #initialInfo h1 {
+            font-family: "Roboto", sans-serif;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        #initialInfo h2 {
+            font-family: "Roboto", sans-serif;
+            font-weight: normal;
+            color: #444;
+        }
+
+        #initialInfo p {
+            font-family: "Roboto", sans-serif;
+            font-weight: light;
+            color: #333;
+        }
+
+        #initialInfo button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #initialInfo button:hover {
+            background-color: #3e8e41;
+        }
+
+        #lastMessage {
+            width: 70vw;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        #lastMessage h1 {
+            font-family: "Roboto", sans-serif;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        #lastMessage h2 {
+            font-family: "Roboto", sans-serif;
+            font-weight: normal;
+            color: #444;
+        }
+
+        #lastMessage p {
+            font-family: "Roboto", sans-serif;
+            font-weight: light;
+            color: #333;
+        }
+
+        #formBox {
+            width: 30vw;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        #formBox p {
+            font-size: 14px;
+            color: #444;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            font-size: 14px;
+            color: #333;
+            margin: 5px 0;
+            text-align: left;
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        label[for="allowCapture"]::after {
+            content: "Estou de acordo com a Política de Privacidade do Inatel";
+            display: inline;
+            font-size: 12px;
+            color: #333;
+            vertical-align: middle;
+        }
+
+        .checkbox-container {
+            margin-top: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #3e8e41;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        img#webcamImage {
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        video#videoCamera {
+            display: none;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #timer-container {
+            position: absolute;
+            top: 20px; /* Ajuste a posição vertical do contador */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 40px; /* Ajuste o tamanho do contador */
+            text-align: center;
+            line-height: 100px;
+            display: none;
+        }
+
+        .blinking {
+            animation: blink 0.7s linear infinite;
+            background-image: none;
+        }
+
+        @keyframes blink {
+            0%, 100% { background-color: transparent; }
+            50% { background-color: #5549699a; }
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <!-- Intial text message with a button to listen to an audio -->
+        <div id="initialInfo">
+            <!-- Page title in to the top of the container -->
+            <h1>NOVAGENESIS</h1>
+            <h2>Entrou na cápsula?</h2>
+            <h2>Próxima parada: Internet do Futuro</h2>
+            <p>O projeto NOVAGENESIS irá revolucionar o campo tecnológico redesenhando um modelo alternativo de Internet do zero</p>
+            <button id="audioButton" type="button" onclick="playAudio()">Ouça o futuro</button>
+        </div>
+        <!-- Form to capture the name and email -->
+        <form id="formBox">
+            <p>Preencha seus dados abaixo. Ao clicar em "Começar", você acionará a câmera que a cada 2 segundos, vai tirar uma nova foto sua.</p>
+            <label for="name">Nome:</label>
+            <input type="text" id="name" name="name" required>
+            <label for="email">E-mail:</label>
+            <input type="email" id="email" name="email" required>
+            <div class="checkbox-container">
+                <input type="checkbox" id="allowCapture" required>
+                <label for="allowCapture"></label>
+            </div>
+            <button type="button" id="capturarButton" onclick="startCapture()" disabled>Começar</button>
+        </form>
+        
+        <!-- Camera preview -->
+        <video id="videoCamera" width="270" height="480" autoplay></video>
+        <!-- Filter over the camera preview -->
+
+        <!-- Last meessage -->
+        <div id="lastMessage">
+            <h1>Agradecemos sua participação!</h1>
+            <h2>Saia da cápsula e veja sua foto no telão da Novagenesis e conte para todos.</h2>
+            <h1>Bom evento!</h1>
+        </div>
+    </div>
+    <div id="timer-container">
+        <div id="timer">0</div>
+    </div>
+
+    <script>
+        // Function to play the audio
+        function playAudio() {
+            // Disable the button
+            disableAudioButton();
+            // open audio from local file audioTest.mp3
+            const audio = new Audio('audioTest.mp3');
+            audio.play();
+            // Wait audio to finish and then show the form
+            audio.onended = function() {
+                // Show the form
+                document.getElementById('formBox').style.display = 'block';
+                // Hide the initial info
+                document.getElementById('initialInfo').style.display = 'none';
+            };
+            
+        }
+
+        function disableAudioButton() {
+            const audioButton = document.getElementById('audioButton');
+            audioButton.disabled = true;
+            audioButton.style.backgroundColor = '#ccc';
+            audioButton.style.cursor = 'not-allowed';
+        }
+
+        function enableAudioButton() {
+            const audioButton = document.getElementById('audioButton');
+            audioButton.disabled = false;
+            audioButton.style.backgroundColor = '#4CAF50';
+            audioButton.style.cursor = 'pointer';
+        }
+
+        // Function to start capturing the webcam image
+        function startCapture() {
+            // Check if the "Permitir tirar a foto" checkbox is checked
+            const allowCaptureCheckbox = document.getElementById('allowCapture');
+            if (!allowCaptureCheckbox.checked) {
+                alert('Por favor, marque a caixa "Permitir tirar a foto" antes de começar.');
+                return;
+            }
+
+            // Post the api http://127.0.0.1:5000/takePicture passing the name and email
+            const nameInput = document.getElementById('name');
+            const emailInput = document.getElementById('email');
+            const data = {
+                name: nameInput.value,
+                email: emailInput.value
+            };
+            startPhotoCaptureTimer();
+
+            // Avoid cors error
+            const path = 'http://127.0.0.1:5000/takePicture';
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data),
+            };
+            fetch(path, options)
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Error capturing photo.');
+                    }
+                })
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+
+        function startPhotoCaptureTimer() {
+            var photosToCapture = 3;
+            var capturedPhotos = 0;
+            var count = 0;
+            var intervalBetweenPhotos = 3;
+            var timer = document.getElementById('timer');
+            var timerContainer = document.getElementById('timer-container');
+            timerContainer.style.display = 'block';
+
+            // Hide the form
+            document.getElementById('formBox').style.display = 'none';
+
+            // Show the webcam preview
+            const videoCamera = document.getElementById('videoCamera');
+            videoCamera.style.display = 'block';
+
+            var intervalId;
+            function updateTimer() {
+                if (capturedPhotos == photosToCapture) {
+                    reset();
+                }
+                if (count == intervalBetweenPhotos) {
+                    capturedPhotos += 1;
+                    blinkScreen();
+                    capturePhoto();
+                }
+                count = count == (intervalBetweenPhotos || capturedPhotos == photosToCapture) ? count = 0 : count + 1;
+                timer.innerText = count;
+            }
+
+            function blinkScreen() {
+                var body = document.getElementsByTagName('body')[0];
+                body.classList.add('blinking');
+                setTimeout(function() {
+                    body.classList.remove('blinking');
+                }, 700);
+            }
+
+            function reset() {
+                clearInterval(intervalId);
+                document.getElementById('name').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('allowCapture').checked = false;
+                checkFormValidity()
+                timerContainer.style.display = 'none';
+                // Close the webcam preview
+                const videoCamera = document.getElementById('videoCamera');
+                videoCamera.style.display = 'none';
+
+                // Show last message for 10 seconds
+                document.getElementById('lastMessage').style.display = 'block';
+                    setTimeout(function() {
+                        document.getElementById('lastMessage').style.display = 'none';
+                        document.getElementById('initialInfo').style.display = 'block';
+                        enableAudioButton();
+                    }, 15000);
+
+            }
+            
+            intervalId = setInterval(updateTimer, 1000);
+        }
+
+        function capturePhoto() {
+            // Call the Python script using JavaScript
+            fetch('/capture-photo') // Replace '/capture-photo' with the server route to execute the Python script
+                .then(response => {
+                    if (response.ok) {
+                        return response.blob();
+                    } else {
+                        throw new Error('Error capturing photo.');
+                    }
+                })
+                .then(blob => {
+                    // Display the captured image
+                    const webcamImage = document.getElementById('webcamImage');
+                    webcamImage.src = URL.createObjectURL(blob);
+                    webcamImage.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+
+        // Function to check form validity and enable/disable the "Começar" button
+        function checkFormValidity() {
+            const nameInput = document.getElementById('name');
+            const emailInput = document.getElementById('email');
+            const allowCaptureCheckbox = document.getElementById('allowCapture');
+            const capturarButton = document.getElementById('capturarButton');
+
+            if (nameInput.checkValidity() && emailInput.checkValidity() && allowCaptureCheckbox.checked) {
+                capturarButton.disabled = false;
+            } else {
+                capturarButton.disabled = true;
+            }
+        }
+
+        // Add event listeners to form fields to check validity on input changes
+        document.getElementById('name').addEventListener('input', checkFormValidity);
+        document.getElementById('email').addEventListener('input', checkFormValidity);
+        document.getElementById('allowCapture').addEventListener('change', checkFormValidity);
+
+        // Disabble form and last message
+        document.getElementById('formBox').style.display = 'none';
+        document.getElementById('lastMessage').style.display = 'none';
+
+        // Open the webcam for preview and crop the image to 270x480
+        const videoCamera = document.getElementById('videoCamera');
+            const constraints = {
+                video: {
+                    width: { min: 270, ideal: 270, max: 270 },
+                    height: { min: 480, ideal: 480, max: 480 }
+                }
+            };
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then(stream => {
+                    videoCamera.srcObject = stream;
+                    videoCamera.play();
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+    </script>
+</body>
+</html>
