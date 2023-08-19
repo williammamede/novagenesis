@@ -8,6 +8,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -I/usr/include/glib-2.0")
 FIND_PACKAGE(PkgConfig REQUIRED)
 PKG_CHECK_MODULES(GLIB REQUIRED IMPORTED_TARGET glib-2.0)
 
+find_package(cpprestsdk REQUIRED)
+find_package(CURL REQUIRED)
+
 INCLUDE_DIRECTORIES(
         ${GLIB_INCLUDE_DIRS}
 )
@@ -20,6 +23,8 @@ INCLUDE_DIRECTORIES(${GIO_INCLUDE_DIRS})
 LINK_DIRECTORIES(${GIO_LIBRARY_DIRS})
 
 include_directories(ContentApp/src)
+include_directories(ContentApp2/src)
+include_directories(NGApi/src)
 include_directories(Common/src)
 include_directories(Common/src/rapidjson)
 include_directories(Common/src/rapidjson/error)
@@ -186,6 +191,8 @@ add_executable(ContentApp
         ContentApp/src/CoreRunPublish02.h
         ContentApp/src/CoreRunPublish03.cpp
         ContentApp/src/CoreRunPublish03.h
+        ContentApp/src/CoreRunPublish04.cpp
+        ContentApp/src/CoreRunPublish04.h
         ContentApp/src/CoreRunSubscribe01.cpp
         ContentApp/src/CoreRunSubscribe01.h
         ContentApp/src/CoreSCNAck01.cpp
@@ -194,9 +201,15 @@ add_executable(ContentApp
         ContentApp/src/CoreSCNSeq01.h
         ContentApp/src/CoreStatusS01.cpp
         ContentApp/src/CoreStatusS01.h
+        ContentApp/src/ServeNgApiEndpoints.cpp
+        ContentApp/src/ServeNgApiEndpoints.h
+        ContentApp/src/WebPageRequester.cpp
+        ContentApp/src/WebPageRequester.h
         ContentApp/src/execContentApp.cpp)
 
 target_link_libraries(ContentApp LINK_PRIVATE Common)
+target_link_libraries(ContentApp PRIVATE cpprestsdk::cpprest)
+target_link_libraries(ContentApp PRIVATE CURL::libcurl)
 
 add_executable(EPGS
         EPGS/Actions/epgs_exposition.c
@@ -644,11 +657,51 @@ add_executable(NGConverter
 target_link_libraries (NGConverter LINK_PRIVATE Common)
 
 
-find_package(cpprestsdk REQUIRED)
-find_package(CURL REQUIRED)
 add_executable(NGApi
-        NGApi/src/listen.cpp)
+        NGApi/src/NGApi.cpp
+        NGApi/src/NGApi.h
+        NGApi/src/ServeNgApiEndpoints.cpp
+        NGApi/src/ServeNgApiEndpoints.h
+        NGApi/src/Core.cpp
+        NGApi/src/Core.h
+        NGApi/src/CoreDeliveryBind01.cpp
+        NGApi/src/CoreDeliveryBind01.h
+        NGApi/src/CoreInfoPayload01.cpp
+        NGApi/src/CoreInfoPayload01.h
+        NGApi/src/CoreMsgCl01.cpp
+        NGApi/src/CoreMsgCl01.h
+        NGApi/src/CoreNotifyS01.cpp
+        NGApi/src/CoreNotifyS01.h
+        NGApi/src/CoreRunDiscover01.cpp
+        NGApi/src/CoreRunDiscover01.h
+        NGApi/src/CoreRunEvaluate01.cpp
+        NGApi/src/CoreRunEvaluate01.h
+        NGApi/src/CoreRunExpose01.cpp
+        NGApi/src/CoreRunExpose01.h
+        NGApi/src/CoreRunInitialize01.cpp
+        NGApi/src/CoreRunInitialize01.h
+        NGApi/src/CoreRunInvite01.cpp
+        NGApi/src/CoreRunInvite01.h
+        NGApi/src/CoreRunPeriodic01.cpp
+        NGApi/src/CoreRunPeriodic01.h
+        NGApi/src/CoreRunContentPublish01.cpp
+        NGApi/src/CoreRunContentPublish01.h
+        NGApi/src/CoreRunPublish01.cpp
+        NGApi/src/CoreRunPublish01.h
+        NGApi/src/CoreRunPublish02.cpp
+        NGApi/src/CoreRunPublish02.h
+        NGApi/src/CoreRunPublish03.cpp
+        NGApi/src/CoreRunPublish03.h
+        NGApi/src/CoreRunSubscribe01.cpp
+        NGApi/src/CoreRunSubscribe01.h
+        NGApi/src/CoreSCNAck01.cpp
+        NGApi/src/CoreSCNAck01.h
+        NGApi/src/CoreSCNSeq01.cpp
+        NGApi/src/CoreSCNSeq01.h
+        NGApi/src/CoreStatusS01.cpp
+        NGApi/src/CoreStatusS01.h
+        NGApi/src/execNGApi.cpp)
 
 target_link_libraries (NGApi LINK_PRIVATE Common)
-target_link_libraries(NGApi PRIVATE cpprestsdk::cpprest)
-target_link_libraries(NGApi PRIVATE CURL::libcurl)
+target_link_libraries (NGApi PRIVATE cpprestsdk::cpprest)
+target_link_libraries (NGApi PRIVATE CURL::libcurl)
