@@ -4,7 +4,7 @@ function playAudio() {
     // Disable the button
     disableAudioButton();
     // open audio from local file audioTest.mp3
-    const audio = new Audio('audioTest.mp3');
+    const audio = new Audio('audioFetin.mp3');
     audio.play();
     // Wait audio to finish and then show the form
     audio.onended = function () {
