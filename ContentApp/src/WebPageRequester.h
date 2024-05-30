@@ -51,9 +51,11 @@ private:
     std::string exec(const char *cmd);
     string replaceAllUrls(string responseHtml);
     string getExtensionFromContentType(string contentType);
+    void requestContentFromUrl(string url, bool isRootUrl);
     void handleImagesFromHtml(string responseHtml);
     void handleCssFromHtml(string responseHtml);
     void handleJsFromHtml(string responseHtml);
+    void zipFolderContents(string path);
     // static write and header callbacks
     static size_t WriteCallback(char *contents, size_t size, size_t nmemb, std::string *response);
     static size_t HeaderCallback(char *contents, size_t size, size_t nmemb, std::string *response);

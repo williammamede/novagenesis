@@ -1,10 +1,25 @@
 <p>Name resolution graph</p>
 <mat-card>
-    <ngx-graph
-      class="chart-container"
-      [view]="[800, 400]"
-      [showMiniMap]="false"
-      [links]="links"
-      [nodes]="nodes">
-    </ngx-graph>
+    <!-- should show a label for each node -->
+    <div class="container">
+      <ngx-graph
+        class="chart-container"
+        [view]="[800, 400]"
+        [showMiniMap]="false"
+        [links]="links"
+        [nodes]="nodes">
+        <!-- <ng-template #nodeTemplate let-node>
+          <svg:g class="node" ngx-tooltip [tooltipPlacement]="'top'" [tooltipType]="'tooltip'">
+            <svg:circle
+              [attr.r]="node.value"
+              [attr.fill]="node.color"
+              [attr.cx]="node.x"
+              [attr.cy]="node.y"
+              [attr.transform]="node.transform"
+            ></svg:circle>
+            <title>{{ node.label }}</title>
+          </svg:g>
+        </ng-template> -->
+      </ngx-graph>
+    </div>
 </mat-card>

@@ -80,6 +80,7 @@ class CoreRunEvaluate01 : public Action {
 
   private:
   void validateWebRequest(string filePath);
+  void storeRepositoryRelations(string repositoryName, string sourceName);
   bool fileExists(const std::string& name);
   std::vector<std::string> webRequestsToBeSent();
 };

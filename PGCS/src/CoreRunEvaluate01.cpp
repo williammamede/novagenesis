@@ -387,7 +387,7 @@ int CoreRunEvaluate01::ShowTheDiscoveredPeers ()
 
   PPGCS = (PGCS *)PB->PP;
 
-  PB->S << Offset << "(3. Show the discovered peer App(s))" << endl;
+  PB->S << Offset << "(3. Show the discovered peer App(s) Changed)" << endl;
 
   // *************************************************************
   // Show the discovered server App(s)
@@ -404,6 +404,47 @@ int CoreRunEvaluate01::ShowTheDiscoveredPeers ()
 		  PB->S << Offset1 << "(OSID = " << PCore->PeerTuples[i]->Values[1] << ")" << endl;
 		  PB->S << Offset1 << "(PID = " << PCore->PeerTuples[i]->Values[2] << ")" << endl;
 		  PB->S << Offset1 << "(BID = " << PCore->PeerTuples[i]->Values[3] << ")" << endl;
+		  // Store the discovered serves in a json file... OSID should be a key, and LN,Uln, HID, PID, BID should be in a lower level
+		  // Inlcude the main key as the domain name
+		  // Include the time of the discovery
+
+		  PB->S << "(Generating report from the discovered peer application)" << endl;
+		  ifstream reportFile;
+		  reportFile.open (PB->GetPath () + "PeerApplicationReport.json");
+		  if (!reportFile)
+		  {
+			  PB->S << "(Creating a new report file)" << endl;
+			  ofstream reportFile;
+			  reportFile.open (PB->GetPath () + "PeerApplicationReport.json");
+			  reportFile << "{" << endl;
+			  reportFile << "  \"PeerApplications\": [" << endl;
+			  reportFile << "    {" << endl;
+			  reportFile << "      \"LN\": \"" << PCore->PeerTuples[i]->LN << "\"," << endl;
+			  reportFile << "      \"ULN\": \"" << PCore->PeerTuples[i]->ULN << "\"," << endl;
+			  reportFile << "      \"HID\": \"" << PCore->PeerTuples[i]->Values[0] << "\"," << endl;
+			  reportFile << "      \"OSID\": \"" << PCore->PeerTuples[i]->Values[1] << "\"," << endl;
+			  reportFile << "      \"PID\": \"" << PCore->PeerTuples[i]->Values[2] << "\"," << endl;
+			  reportFile << "      \"BID\": \"" << PCore->PeerTuples[i]->Values[3] << "\"" << endl;
+			  reportFile << "    }" << endl;
+			  reportFile << "  ]" << endl;
+			  reportFile << "}" << endl;
+			  reportFile.close ();
+		  }
+		  else
+		  {
+			  PB->S << "(Appending to the report file)" << endl;
+			  ofstream reportFile;
+			  reportFile.open (PB->GetPath () + "PeerApplicationReport.json", ios::app);
+			  reportFile << "    {" << endl;
+			  reportFile << "      \"LN\": \"" << PCore->PeerTuples[i]->LN << "\"," << endl;
+			  reportFile << "      \"ULN\": \"" << PCore->PeerTuples[i]->ULN << "\"," << endl;
+			  reportFile << "      \"HID\": \"" << PCore->PeerTuples[i]->Values[0] << "\"," << endl;
+			  reportFile << "      \"OSID\": \"" << PCore->PeerTuples[i]->Values[1] << "\"," << endl;
+			  reportFile << "      \"PID\": \"" << PCore->PeerTuples[i]->Values[2] << "\"," << endl;
+			  reportFile << "      \"BID\": \"" << PCore->PeerTuples[i]->Values [3] << "\"" << endl;
+			  reportFile << "    }" << endl;
+			  reportFile.close ();
+		  }
 		}
 	}
   else

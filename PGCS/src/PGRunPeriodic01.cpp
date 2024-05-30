@@ -180,13 +180,13 @@ int PGRunPeriodic01::PSAwareness ()
 			{
 			  PPG->AwareOfAPS = true;
 
-#ifdef DEBUG
+
 			  PB->S << Offset1 << "(Aware of the PSS " << i << " )" << endl;
 			  PB->S << Offset1 << "(HID = " << ProcessesTuples[i]->Values[0] << ")" << endl;
 			  PB->S << Offset1 << "(OSID = " << ProcessesTuples[i]->Values[1] << ")" << endl;
 			  PB->S << Offset1 << "(PID = " << ProcessesTuples[i]->Values[2] << ")" << endl;
 			  PB->S << Offset1 << "(BID = " << ProcessesTuples[i]->Values[3] << ")" << endl;
-#endif
+
 
 			  for (unsigned int j = 0; j < PPG->PSTuples.size (); j++)
 				{
@@ -237,13 +237,13 @@ int PGRunPeriodic01::PSAwareness ()
 			{
 			  PPG->AwareOfAPS = true;
 
-#ifdef DEBUG
+
 			  PB->S << Offset1 << "(Aware of the PSS/NRNCS " << i << " )" << endl;
 			  PB->S << Offset1 << "(HID = " << ProcessesTuples[i]->Values[0] << ")" << endl;
 			  PB->S << Offset1 << "(OSID = " << ProcessesTuples[i]->Values[1] << ")" << endl;
 			  PB->S << Offset1 << "(PID = " << ProcessesTuples[i]->Values[2] << ")" << endl;
 			  PB->S << Offset1 << "(BID = " << ProcessesTuples[i]->Values[3] << ")" << endl;
-#endif
+
 
 			  for (unsigned int j = 0; j < PPG->PSTuples.size (); j++)
 				{

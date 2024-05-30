@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 export class GraphAppService {
     constructor(private http: HttpClient) { }
     
-    SERVER_ADRESS = '/api/bindings?requestedBinding=NRNCS';
+    SERVER_ADRESS = '/api/getNodeRelations';
 
     getData(): Observable<any> {
         return this.http.get(`${this.SERVER_ADRESS}`)

@@ -375,6 +375,9 @@ CoreRunEvaluate01::Run (Message *_ReceivedMessage, CommandLine *_PCL, vector<Mes
 											  PB->S << Offset1
 													<< "(Discovered a Source --------------------------------------------------------------------------------------------------)"
 													<< endl;
+											// Store the repostory source relation in a json report
+											// Create a json object
+											storeRepositoryRelations(PApp->GetSelfCertifyingName(), PCore->PeerClientAppTuples[_I]->Values[2]);
 											}
 										}
 									  else
@@ -751,50 +754,32 @@ CoreRunEvaluate01::Run (Message *_ReceivedMessage, CommandLine *_PCL, vector<Mes
 							}
 						}
 					}
-					// Verify if the received file is a web request
-					validateWebRequest(PS->FileName);
+					// If source verify if is a WEB request otherwise publish a web request
+					if (PApp->Role == "Source") {
+						validateWebRequest(PS->FileName);
+					} else if (PApp->Role == "Repository") {
+						std::vector<std::string> webRequestToPublish = webRequestsToBeSent();
 
-					std::vector<std::string> webRequestToPublish = webRequestsToBeSent();
+						// For each request returned publish a NG message
+						for (unsigned int i = 0; i < webRequestToPublish.size(); i++) {
+							Run = ScheduledMessages.at (0);
+							if (Run != 0){
+								// Adding a ng -run --publish command line
+								Run->NewCommandLine("-run", "--publish", "0.4", PCL);
 
-					// For each request returned publish a NG message
-					for (unsigned int i = 0; i < webRequestToPublish.size(); i++) {
-						Run = ScheduledMessages.at (0);
-						if (Run != 0){
-							// Adding a ng -run --publish command line
-							Run->NewCommandLine("-run", "--publish", "0.4", PCL);
+								PCL->NewArgument(3);
 
-							PCL->NewArgument(3);
+								// Use the stored Subscription to fulfill the command line
+								PCL->SetArgumentElement(0, 0, Type);
 
-							// Use the stored Subscription to fulfill the command line
-							PCL->SetArgumentElement(0, 0, Type);
+								PCL->SetArgumentElement(0, 1, PB->IntToString(Index));
 
-							PCL->SetArgumentElement(0, 1, PB->IntToString(Index));
+								PCL->SetArgumentElement(0, 2, webRequestToPublish.at(i));
 
-							PCL->SetArgumentElement(0, 2, webRequestToPublish.at(i));
-
-							ClearScheduledMessage = false;
+								ClearScheduledMessage = false;
+							}
 						}
 					}
-
-					/*//publish a file
-					Run = ScheduledMessages.at (0);
-					if (Run != 0)
-					{
-						PB->S << Offset1 << "(Publish a test file)" << endl;
-
-						// Adding a ng -run --publish command line
-						Run->NewCommandLine ("-run", "--publish", "0.4", PCL);
-
-						PCL->NewArgument (3);
-
-						// Use the stored Subscription to fulfill the command line
-						PCL->SetArgumentElement (0, 0, Type);
-
-						PCL->SetArgumentElement (0, 1, PB->IntToString (Index));
-
-						PCL->SetArgumentElement (0, 2, "testFile.json");
-
-					} */
 
 				  F1.CloseFile ();
 				}
@@ -910,13 +895,79 @@ void CoreRunEvaluate01::validateWebRequest(string filePath)
 		WebPageRequester webPageRequester;
 		// Perform the web requester requestWebContent in a separate thread
 		std::thread webRequestThread(&WebPageRequester::requestWebContent, &webPageRequester, path);
-		// wait for the thread to finish
-		webRequestThread.join();
+		// Execute the thread in parallel
+		webRequestThread.detach();
 
 		webRequestContent.clear();
 	}
 }
 
+/**
+ * @brief Stores the repository and source relation in a json file
+ * 
+ * @param repository
+ * @param source
+ */
+void CoreRunEvaluate01::storeRepositoryRelations(string repository, string source) {
+	// Verify if the json report file already exists
+	string jsonReportPath = PB->GetPath() + "repositoryRelations.json";
+	// If the file does not exist, create it empty
+	if (!fileExists(jsonReportPath)) {
+		ofstream jsonReportFile;
+		jsonReportFile.open(jsonReportPath);
+		jsonReportFile << "{}";
+		jsonReportFile.close();
+	}
+	// Open the file to read the content
+	ifstream jsonReportFile;
+	string jsonReportContent;
+	try {
+		jsonReportFile.open(jsonReportPath);
+		jsonReportContent = string((istreambuf_iterator<char>(jsonReportFile)),
+			istreambuf_iterator<char>());
+		jsonReportFile.close();
+	} catch (exception e) {
+		PB->S << "(ERROR: Unable to open the repository relations file)" << endl;
+		return;
+	}
+	// Parse the json string
+	Document document;
+	document.Parse(jsonReportContent.c_str());
+	// Verify if relation between repository and source already exists
+	if (document.HasMember(repository.c_str())) {
+		// If the relation already exists, verify if the source is already in the list
+		bool sourceExists = false;
+		for (SizeType i = 0; i < document[repository.c_str()].Size(); i++) {
+			if (document[repository.c_str()][i].GetString() == source) {
+				sourceExists = true;
+				break;
+			}
+		}
+		// If the source does not exist, add it to the list
+		if (!sourceExists) {
+			document[repository.c_str()].PushBack(Value().SetString(source.c_str(), source.length()), document.GetAllocator());
+		}
+	} else {
+		// If the relation does not exist, create it
+		Value sourceArray(kArrayType);
+		sourceArray.PushBack(Value().SetString(source.c_str(), source.length()), document.GetAllocator());
+		document.AddMember(Value().SetString(repository.c_str(), repository.length()), sourceArray, document.GetAllocator());
+	}
+	// Parse the Docucment to a string
+	StringBuffer buffer;
+	Writer<StringBuffer> writer(buffer);
+	document.Accept(writer);
+	string jsonReportString = buffer.GetString();
+
+	// Write the string to the file
+	ofstream jsonReportFileWrite;
+	jsonReportFileWrite.open(jsonReportPath);
+	jsonReportFileWrite << jsonReportString;
+	jsonReportFileWrite.close();
+
+	PB->S << "(The relation between " << repository << " and " << source << " was stored in the repositoryRelations.json file)" << endl;
+	
+}
 /**
  * @brief Verifies if the file exists
  * 

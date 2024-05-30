@@ -107,6 +107,47 @@ CoreRunPublish02::Run (Message *_ReceivedMessage, CommandLine *_PCL, vector<Mess
 
 				  // Configure the tuple to be informed of this publication
 				  PubNotify.push_back (ExtendedPeerAppTuple);
+				  // Store the discovered serves in a json file... OSID should be a key, and LN,Uln, HID, PID, BID should be in a lower level
+					// Inlcude the main key as the domain name
+					// Include the time of the discovery
+
+					PB->S << "(Generating report from the discovered peer application)" << endl;
+					ifstream reportFile;
+					reportFile.open (PB->GetPath () + "PeerApplicationReport.json");
+					if (!reportFile)
+					{
+						PB->S << "(Creating a new report file)" << endl;
+						ofstream reportFile;
+						reportFile.open (PB->GetPath () + "PeerApplicationReport.json");
+						reportFile << "{" << endl;
+						reportFile << "  \"PeerApplications\": [" << endl;
+						reportFile << "    {" << endl;
+						reportFile << "      \"LN\": \"" << PCore->PeerTuples[i]->LN << "\"," << endl;
+						reportFile << "      \"ULN\": \"" << PCore->PeerTuples[i]->ULN << "\"," << endl;
+						reportFile << "      \"HID\": \"" << PCore->PeerTuples[i]->Values[0] << "\"," << endl;
+						reportFile << "      \"OSID\": \"" << PCore->PeerTuples[i]->Values[1] << "\"," << endl;
+						reportFile << "      \"PID\": \"" << PCore->PeerTuples[i]->Values[2] << "\"," << endl;
+						reportFile << "      \"BID\": \"" << PCore->PeerTuples[i]->Values[3] << "\"" << endl;
+						reportFile << "    }" << endl;
+						reportFile << "  ]" << endl;
+						reportFile << "}" << endl;
+						reportFile.close ();
+					}
+					else
+					{
+						PB->S << "(Appending to the report file)" << endl;
+						ofstream reportFile;
+						reportFile.open (PB->GetPath () + "PeerApplicationReport.json", ios::app);
+						reportFile << "    {" << endl;
+						reportFile << "      \"LN\": \"" << PCore->PeerTuples[i]->LN << "\"," << endl;
+						reportFile << "      \"ULN\": \"" << PCore->PeerTuples[i]->ULN << "\"," << endl;
+						reportFile << "      \"HID\": \"" << PCore->PeerTuples[i]->Values[0] << "\"," << endl;
+						reportFile << "      \"OSID\": \"" << PCore->PeerTuples[i]->Values[1] << "\"," << endl;
+						reportFile << "      \"PID\": \"" << PCore->PeerTuples[i]->Values[2] << "\"," << endl;
+						reportFile << "      \"BID\": \"" << PCore->PeerTuples[i]->Values [3] << "\"" << endl;
+						reportFile << "    }" << endl;
+						reportFile.close ();
+					}
 				}
 
 			  CreatePublishMessage (FileName[0], PubNotify, SubNotify);

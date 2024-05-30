@@ -23,12 +23,12 @@ export class LifecycleComponent implements OnInit {
       serviceState: 'waiting'
     },
     {
-      serviceName: 'ContentApp1',
+      serviceName: 'Source',
       time: '',
       serviceState: 'waiting'
     },
     {
-      serviceName: 'ContentApp2',
+      serviceName: 'Repository',
       time: '',
       serviceState: 'waiting'
     }

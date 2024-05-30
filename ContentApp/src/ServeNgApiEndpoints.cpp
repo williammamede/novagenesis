@@ -125,7 +125,9 @@ void ServeNgApiEndpoints::start()
                 respond(req, OKAY, getReceivedMessages());
             } else if (http_uri_sub_dir == U("/lifecycle")) {
                 respond(req, OKAY, getLifecycle());
-            } 
+            } else if (http_uri_sub_dir == U("/getNodeRelations")) {
+                respond(req, OKAY, getNodeRelations());
+            }
             // Else it must be a web page request
             else {
                 auto path = http_uri_sub_dir.substr(1);
@@ -202,47 +204,14 @@ void ServeNgApiEndpoints::handleWebRequest(const http_request &request, const st
         }
 
         // Read the index.html file
-        std::ifstream file(tempDir + "/" + hashUrl + ".html");
+        std::ifstream file(tempDir + "/index.html");
         std::stringstream buffer;
         buffer << file.rdbuf();
         file.close();
         response = buffer.str();
-        // Read the headers file
-        std::ifstream fileHeaders(tempDir + "/headers.txt");
-
-        // The header file should have the following pattern:
-        // HTTP/1.1 200 OK
-        // Date: Mon, 27 Jul 2009 12:28:53 GMT
-        // Server: Apache/2.2.14 (Win32)
-        // Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT
-        // Content-Length: 88
-        // Content-Type: text/html
-        // Connection: Closed
-
-        std::stringstream bufferHeaders;
-        bufferHeaders << fileHeaders.rdbuf();
-        fileHeaders.close();
-        headers = bufferHeaders.str();
-        
+               
         http_response responseHttp(OKAY);
-
-        std::istringstream iss(headers);
-        std::string line;
-
-        while (std::getline(iss, line)) {
-            auto pos = line.find(':');
-            if (pos != std::string::npos) {
-                auto headerName = line.substr(0, pos);
-                auto headerValue = line.substr(pos + 1);
-                // Remove the \r at the end of the string
-                headerValue.erase(std::remove(headerValue.begin(), headerValue.end(), '\r'), headerValue.end());
-                // Remove the space at the beginning of the string
-                headerValue.erase(headerValue.begin(), std::find_if(headerValue.begin(), headerValue.end(), [](int ch) {
-                    return !std::isspace(ch);
-                }));
-                responseHttp.headers().add(U(headerName.c_str()), U(headerValue.c_str()));
-            }
-        }
+        responseHttp.headers().add(U("Content-Type"), U("text/html"));
 
         responseHttp.set_body(response);
         request.reply(responseHttp);
@@ -421,6 +390,60 @@ web::json::value ServeNgApiEndpoints::getLifecycle()
 
     return output;
 }
+
+/**
+ * @brief Get the node relations
+ * 
+ * @return web::json::value The node relations
+ */
+web::json::value ServeNgApiEndpoints::getNodeRelations()
+{
+    // Read all files with service offers
+    std::vector<std::string> files;
+    string dirPath = std::string(BASE) + "/IO/Repository1/";
+    std::filesystem::path path(dirPath);
+    web::json::value output;
+
+    // Build a json object with the service offers between the nodes
+    // Read only files with Service_Offer_*.txt in the name
+    // It shoulf follow the pattern Alberti_HUID Offer EAB15025 C3C6B84D
+    // the EAB15025 will be a source and the C3C6B84D will be a target
+    // A source could be present in multiple files, so we need to check if the source is already in the json object
+    for (const auto &entry : std::filesystem::directory_iterator(path))
+    {
+        if (entry.path().string().find("Service_Offer_") != std::string::npos)
+        {
+            std::ifstream file(entry.path());
+            std::string line;
+            while (std::getline(file, line))
+            {
+                std::istringstream iss(line);
+                std::vector<std::string> tokens{std::istream_iterator<std::string>{iss}, std::istream_iterator<std::string>{}};
+                if (tokens.size() == 4)
+                {
+                    std::string source = tokens[2];
+                    std::string target = tokens[3];
+                    if (output.has_field(source))
+                    {
+                        // Access the existing array
+                        web::json::array& existingArray = output[source].as_array();
+                        // Create the new target value
+                        web::json::value newTarget = json::value::string(target);
+                        // Push the new target to the array
+                        existingArray[existingArray.size()] = std::move(newTarget);
+                    }  
+                    else
+                    {
+                        output[source] = json::value::array({json::value::string(target)});
+                    }
+                }
+            }
+        }
+    }
+
+    return output;
+}
+
 
 /**
  * @brief Header callback for web page requests, that will be included in restcppsdk response

@@ -57,6 +57,10 @@
 //#define DEBUG1
 //#define DEBUG3
 
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+
 Process::Process(string _LN, key_t _Key, string _Path)
 {
 	LN=_LN;
@@ -2551,48 +2555,59 @@ int	Process::DiscoverHomonymsEntitiesTuplesFromProcessAndBlockLegibleNames(strin
 
 	//cout << Offset <<  "(DiscoverHomonymsEntitiesTuplesFromProcessAndBlockLegibleNames = "<<_ProcessLN<<" and Block LN = "<<_BlockLN<<")" << endl;
 
+	
+	
 	if (DiscoverHomonymsEntitiesIDsFromLN(9,"Host",HIDs,_PB) == OK)
 		{
 #ifdef DEBUG3
 			cout << Offset <<  "(HIDs.size() = "<<HIDs->size()<<")" << endl;
 #endif
+			rapidjson::Document document;
+			document.SetObject();
+			rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
+
+			rapidjson::Value hostArray(rapidjson::kArrayType);
 
 			for (unsigned int i=0; i<HIDs->size(); i++)
 				{
 #ifdef DEBUG3
 				cout << endl << Offset <<  "(HID ["<<i<<"] = "<<HIDs->at(i)<<")" << endl;
 #endif
+					rapidjson::Value hostObject(rapidjson::kObjectType);
+					hostObject.AddMember("HID", rapidjson::StringRef(HIDs->at(i).c_str()), allocator);
 					if (DiscoverOSIDsFromHID(HIDs->at(i),OSIDs,_PB) == OK)
 						{
 
 #ifdef DEBUG3
 							cout << Offset <<  "(OSIDs.size() = "<<OSIDs->size()<<")" << endl;
 #endif
-
+						rapidjson::Value osArray(rapidjson::kArrayType);
 						for (unsigned int j=0; j<OSIDs->size(); j++)
 						  {
 #ifdef DEBUG3
 							cout << endl << Offset <<  "(OSID ["<<j<<"] = "<<OSIDs->at(j)<<")" << endl;
 #endif
-
+							rapidjson::Value osObject(rapidjson::kObjectType);
+							osObject.AddMember("OSID", rapidjson::StringRef(OSIDs->at(j).c_str()), allocator);
 							if (DiscoverHomonymsProcessesPIDsFromOSID(OSIDs->at(j),_ProcessLN,PIDs,_PB) == OK)
 							  {
 #ifdef DEBUG3
 								cout << Offset <<  "(PIDs.size() = "<<PIDs->size()<<")" << endl;
 #endif
-
+								rapidjson::Value processArray(rapidjson::kArrayType);
 								for (unsigned int k=0; k<PIDs->size(); k++)
 								  {
 #ifdef DEBUG3
 									cout << endl << Offset <<  "(PID ["<<k<<"] = "<<PIDs->at(k)<<")" << endl;
 #endif
-
+									rapidjson::Value processObject(rapidjson::kObjectType);
+									processObject.AddMember("PID", rapidjson::StringRef(PIDs->at(k).c_str()), allocator);
+									
 									if (DiscoverHomonymsBlocksBIDsFromPID(PIDs->at(k),_BlockLN,BIDs,_PB) == OK)
 									  {
 #ifdef DEBUG3
 										cout << Offset <<  "(BIDs.size() = "<<BIDs->size()<<")" << endl;
 #endif
-
 										if (BIDs->size() == 1)
 										  {
 											Tuple *Temp=new Tuple;
@@ -2612,6 +2627,8 @@ int	Process::DiscoverHomonymsEntitiesTuplesFromProcessAndBlockLegibleNames(strin
 #endif
 
 											Status=OK;
+											processObject.AddMember("BID", rapidjson::StringRef(BIDs->at(0).c_str()), allocator);
+											
 										  }
 										else
 										  {
@@ -2624,7 +2641,9 @@ int	Process::DiscoverHomonymsEntitiesTuplesFromProcessAndBlockLegibleNames(strin
 									  {
 										//cout << Offset <<  "(Warning: Fourth consultation returned an warning status)" << endl;
 									  }
+									  processArray.PushBack(processObject, allocator);
 								  }
+								  osObject.AddMember("Processes", processArray, allocator);
 
 								PIDs->clear();
 							  }
@@ -2632,15 +2651,31 @@ int	Process::DiscoverHomonymsEntitiesTuplesFromProcessAndBlockLegibleNames(strin
 							  {
 								//cout << Offset <<  "(Warning: Third consultation returned an warning status)" << endl;
 							  }
+							  osArray.PushBack(osObject, allocator);
 						  }
 
 						OSIDs->clear();
+						hostObject.AddMember("OSs", osArray, allocator);
 					  }
 					else
 					  {
 						//cout << Offset <<  "(Warning: Second consultation returned an warning status)" << endl;
 					  }
+					hostArray.PushBack(hostObject, allocator);
 			  }
+
+			document.AddMember("Hosts", hostArray, allocator);
+
+			rapidjson::StringBuffer buffer;
+			rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+			document.Accept(writer);
+
+			ofstream file;
+			// Save in the IO forder from current process
+			string path = Path + "/SystemProcessTuples" + GetLegibleName() + ".json";
+			file.open(path.c_str());
+			file << buffer.GetString();
+			file.close();
 	  }
 	else
 	  {

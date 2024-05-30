@@ -35,6 +35,7 @@
 #include <cpprest/http_listener.h>
 #include <cpprest/filestream.h>
 #include <cpprest/rawptrstream.h>
+#include <cpprest/json.h>
 
 #ifndef _IOSTREAM_H
 #include <iostream>
@@ -85,6 +86,7 @@ private:
     web::json::value getPublishedMessages();
     web::json::value getReceivedMessages();
     web::json::value getLifecycle();
+    web::json::value getNodeRelations();
     string getUrlAsHash(string url);
     // static write and header callbacks
     static size_t WriteCallback(char *contents, size_t size, size_t nmemb, std::string *response);

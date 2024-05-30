@@ -81,6 +81,10 @@
 #include "HTRunPeriodic01.h"
 #endif
 
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+
 HT::HT (string _LN, Process *_PP, unsigned int _Index, string _Path) : Block (_LN, _PP, _Index, _Path)
 {
   Action *PA = NULL;
@@ -474,41 +478,47 @@ void HT::GenerateJSONReport(string path)
 	S << "Generating JSON report for " << GetLegibleName() << "." << endl;
 	Iterator it1;
 	string PreviousKey = "";
-	if (Bindings !=0)
+	if (Bindings != 0)
 	{
-		ofstream file;
-		file.open(path.c_str() + GetLegibleName() + "bindings.json");
-		file << "{" << endl;
-		file << "\"" << GetLegibleName() << "\": [" << endl;
+		rapidjson::Document document;
+		document.SetObject();
+		rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
+
+		rapidjson::Value categories(rapidjson::kArrayType);
+
 		for (unsigned int i = 0; i < MAX_CATEGORIES; i++)
 		{
-			if (i != 0)
-			{
-				file << "," << endl;
-			}
-			file << "{" << endl;
-			file << "\"Category\": " << i << "," << endl;
-			file << "\"Bindings\": [" << endl;
+			rapidjson::Value category(rapidjson::kObjectType);
+			category.AddMember("Category", i, allocator);
+
+			rapidjson::Value bindings(rapidjson::kArrayType);
+
 			if (Bindings[i].size() > 0)
 			{
 				for (it1 = Bindings[i].begin(); it1 != Bindings[i].end(); it1++)
 				{
-					if (it1 != Bindings[i].begin())
-					{
-						file << "," << endl;
-					}
-					file << "{" << endl;
-					file << "\"Key\": \"" << it1->first << "\"," << endl;
-					file << "\"Value\": \"" << it1->second << "\"" << endl;
-					file << "}";
+					rapidjson::Value binding(rapidjson::kObjectType);
+					binding.AddMember("Key", rapidjson::StringRef(it1->first.c_str()), allocator);
+					binding.AddMember("Value", rapidjson::StringRef(it1->second.c_str()), allocator);
+
+					bindings.PushBack(binding, allocator);
 				}
 			}
-			file << "]" << endl;
-			file << "}" << endl;
+
+			category.AddMember("Bindings", bindings, allocator);
+
+			categories.PushBack(category, allocator);
 		}
-		file << endl;
-		file << "]" << endl;
-		file << "}" << endl;
+
+		document.AddMember(rapidjson::StringRef(GetLegibleName().c_str()), categories, allocator);
+
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+		document.Accept(writer);
+
+		ofstream file;
+		file.open((path + GetLegibleName() + "bindings.json").c_str());
+		file << buffer.GetString();
 		file.close();
 	}
 }

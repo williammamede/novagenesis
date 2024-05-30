@@ -52,11 +52,29 @@ WebPageRequester::~WebPageRequester()
  */
 void WebPageRequester::requestWebContent(const string &url)
 {
+    requestContentFromUrl(url, true);
+}
+
+/**
+ * @brief Request a web content and store it in the source folder
+ * 
+ * @param url 
+ * @param isRoot
+ */
+/* void WebPageRequester::requestContentFromUrl(string url, bool isRoot)
+{
     // Create a hash of the URL to use as the folder name
     string urlHash = getUrlAsHash(url);
 
     // Create the folder to store the web page in the source folder
     string folderPath = string(BASE) + "/IO/Source1/" + urlHash;
+
+    // Check if there is a folder and a zip file with the same name
+    if (std::filesystem::exists(folderPath) || std::filesystem::exists(folderPath + ".zip")) {
+        std::cout << "Folder or zip file already exists for URL: " << url << std::endl;
+        return;
+    }
+
     std::filesystem::create_directories(folderPath);
 
     curl_global_init(CURL_GLOBAL_ALL);
@@ -111,18 +129,29 @@ void WebPageRequester::requestWebContent(const string &url)
     // Determine the file extension based on the content type
     std::string fileExtension = getExtensionFromContentType(contentType);
 
-    // Rename the response file to the correct extension
-    std::filesystem::rename(folderPath + "/" + urlHash + ".txt", folderPath + "/" + urlHash + fileExtension);
-
     // Close the response file
     fclose(responseFile);
+
+    // Wait for the response file to be closed
+    while (!std::filesystem::exists(folderPath + "/" + urlHash + ".txt")) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout << "Waiting for response file to be closed" << std::endl;
+    }
+
+    // Rename the response file to the correct extension
+    try {
+        std::filesystem::rename(folderPath + "/" + urlHash + ".txt", folderPath + "/" + urlHash + fileExtension);
+    } catch (std::filesystem::filesystem_error& e) {
+        std::cerr << "Error renaming file: " << e.what() << std::endl;
+        return;
+    }
 
     // Clean up
     curl_easy_cleanup(curl);
     curl_global_cleanup();
 
     // If the content type is text/html
-    if (contentType == "text/html") {
+    if (contentType == "text/html" && isRoot) {
         std::ifstream responseFile(folderPath + "/" + urlHash + fileExtension);
         std::string responseHtml((std::istreambuf_iterator<char>(responseFile)), std::istreambuf_iterator<char>());
         responseFile.close();
@@ -141,6 +170,12 @@ void WebPageRequester::requestWebContent(const string &url)
         std::ofstream resonseHtmlFile(folderPath + "/" + urlHash + fileExtension);
         resonseHtmlFile << responseHtml;
         resonseHtmlFile.close();
+
+        // Wait for the response file to be closed
+        while (!std::filesystem::exists(folderPath + "/" + urlHash + fileExtension)) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::cout << "Waiting for response file to be closed" << std::endl;
+        }
     }
 
     // Save the headers to a file in to the created folder
@@ -148,25 +183,73 @@ void WebPageRequester::requestWebContent(const string &url)
     headersFile << headers;
     headersFile.close();
 
+    // Wait for the headers file to be closed
+    while (!std::filesystem::exists(folderPath + "/headers.txt")) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout << "Waiting for headers file to be closed" << std::endl;
+    }
+
     // zip the folder contents
-    std::string zipCommand = "zip -r " + folderPath + ".zip -j " + folderPath;
+    zipFolderContents(folderPath);
 
-    std::string zipResult = exec(zipCommand.c_str());
+    // Delete the folder
+    try {
+        std::filesystem::remove_all(folderPath);
+    } catch (std::filesystem::filesystem_error& e) {
+        std::cerr << "Error deleting folder: " << e.what() << std::endl;
+        return;
+    }
+}
+ */
+/**
+ * @brief Request a web content and store it in the source folder
+ * 
+ * @param url
+ */
+void WebPageRequester::requestContentFromUrl(string url, bool isRoot)
+{
+    // Create a hash of the URL to use as the folder name
+    string urlHash = getUrlAsHash(url);
 
-    //Wait till the zip file is created
+    // Create the folder to store the web page in the source folder
+    string folderPath = string(BASE) + "/IO/Source1/" + urlHash;
+
+    // Check if there is a folder and a zip file with the same name
+    if (std::filesystem::exists(folderPath) || std::filesystem::exists(folderPath + ".zip")) {
+        std::cout << "Folder or zip file already exists for URL: " << url << std::endl;
+        return;
+    }
+
+    std::filesystem::create_directories(folderPath);
+
+    // Get the page using wget with all its dependencies, not recursive
+    std::string wgetCommand = "wget -p -k -E -H -nd -P " + folderPath + " " + url;
+    FILE* wgetPipe = popen(wgetCommand.c_str(), "r");
+    if (wgetPipe) {
+        char buffer[128];
+        while (!feof(wgetPipe)) {
+            if (fgets(buffer, 128, wgetPipe) != nullptr)
+                std::cout << buffer;
+        }
+        pclose(wgetPipe);
+    }
+
+    // zip the folder contents
+    zipFolderContents(folderPath);
+
+    // Wait zip file to be created
     while (!std::filesystem::exists(folderPath + ".zip")) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         std::cout << "Waiting for zip file to be created" << std::endl;
     }
-    
-    // check if the zip command was successful
-    if (zipResult.find("updating: ") == std::string::npos) {
-        std::cerr << "Error: " << zipResult << std::endl;
-        return;
-    }
 
     // Delete the folder
-    std::filesystem::remove_all(folderPath);
+    try {
+        std::filesystem::remove_all(folderPath);
+    } catch (std::filesystem::filesystem_error& e) {
+        std::cerr << "Error deleting folder: " << e.what() << std::endl;
+        return;
+    }
 }
 
 /**
@@ -277,13 +360,13 @@ size_t WebPageRequester::WriteToFileCallback(char* contents, size_t size, size_t
  */
 string WebPageRequester::replaceAllUrls(string responseHtml)
 {
-    std::string prefix = "http://127.0.0.1:10102";
+    std::string prefix = "http://127.0.0.1:10102/";
 
     std::regex httpRegex("http://");
     std::regex httpsRegex("https://");
 
-    responseHtml = std::regex_replace(responseHtml, httpRegex, prefix + "/");
-    responseHtml = std::regex_replace(responseHtml, httpsRegex, prefix + "/");
+    responseHtml = std::regex_replace(responseHtml, httpRegex, prefix);
+    responseHtml = std::regex_replace(responseHtml, httpsRegex, prefix);
 
     return responseHtml;
 }
@@ -368,7 +451,9 @@ void WebPageRequester::handleImagesFromHtml(string responseHtml)
     // For each image URL perform the requestWebContent
     while (std::regex_search(searchStart, responseHtml.cend(), imageMatch, imageRegex)) {
         std::string imageUrl = imageMatch[1];
-        requestWebContent(imageUrl);
+        // Request the image in a separate thread
+        std::thread imageThread(&WebPageRequester::requestContentFromUrl, this, imageUrl, false);
+        imageThread.detach();
         searchStart = imageMatch.suffix().first;
     }
 }
@@ -388,7 +473,9 @@ void WebPageRequester::handleCssFromHtml(string responseHtml)
     // For each CSS URL perform the requestWebContent
     while (std::regex_search(searchStart, responseHtml.cend(), cssMatch, cssRegex)) {
         std::string cssUrl = cssMatch[1];
-        requestWebContent(cssUrl);
+        // Request the CSS in a separate thread
+        std::thread cssThread(&WebPageRequester::requestContentFromUrl, this, cssUrl, false);
+        cssThread.detach();
         searchStart = cssMatch.suffix().first;
     }
 }
@@ -408,7 +495,36 @@ void WebPageRequester::handleJsFromHtml(string responseHtml)
     // For each JS URL perform the requestWebContent
     while (std::regex_search(searchStart, responseHtml.cend(), jsMatch, jsRegex)) {
         std::string jsUrl = jsMatch[1];
-        requestWebContent(jsUrl);
+        // Request the JS in a separate thread
+        std::thread jsThread(&WebPageRequester::requestContentFromUrl, this, jsUrl, false);
+        jsThread.detach();
         searchStart = jsMatch.suffix().first;
+    }
+}
+
+/**
+ * @brief Zip the web content
+ * 
+ * @param path
+ */
+void WebPageRequester::zipFolderContents(string path)
+{
+    // zip the folder contents
+    std::filesystem::path folder(path);
+    std::filesystem::path zipFile = folder.parent_path() / (folder.stem().string() + ".zip");
+    std::string zipCommand = "zip -r " + zipFile.string() + " -j " + folder.string();
+
+    int zipResult = std::system(zipCommand.c_str());
+
+    //Wait till the zip file is created
+    while (!std::filesystem::exists(zipFile)) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout << "Waiting for zip file to be created" << std::endl;
+    }
+    
+    // check if the zip command was successful
+    if (WEXITSTATUS(zipResult) != 0) {
+        std::cerr << "Error: zip command failed with exit code " << WEXITSTATUS(zipResult) << std::endl;
+        return;
     }
 }
