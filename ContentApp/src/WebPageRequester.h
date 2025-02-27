@@ -45,12 +45,13 @@ class WebPageRequester
 public:
     WebPageRequester();
     ~WebPageRequester();
-    void requestWebContent(const string &url);
+    void requestWebContent(const string &url, const string &method, const string &payload);
 private:
     string getUrlAsHash(string url);
     std::string exec(const char *cmd);
     string replaceAllUrls(string responseHtml);
     string getExtensionFromContentType(string contentType);
+    void postRequestContentFromUrl(string url, string payload);
     void requestContentFromUrl(string url, bool isRootUrl);
     void handleImagesFromHtml(string responseHtml);
     void handleCssFromHtml(string responseHtml);

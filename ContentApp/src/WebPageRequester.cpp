@@ -50,10 +50,58 @@ WebPageRequester::~WebPageRequester()
  * 
  * @param url 
  */
-void WebPageRequester::requestWebContent(const string &url)
+void WebPageRequester::requestWebContent(const string &url, const string &method, const string &payload)
 {
-    requestContentFromUrl(url, true);
+    if (method == "GET") {
+        requestContentFromUrl(url, true);
+    } else if (method == "POST") {
+        postRequestContentFromUrl(url, payload);
+    }
 }
+
+/**
+ * @brief Perform a post request to the given URL
+ * 
+ * @param url 
+ */
+void WebPageRequester::postRequestContentFromUrl(string url, string payload)
+{
+    // Create a hash of the URL to use as the folder name
+    string urlHash = getUrlAsHash(url);
+
+    // Create the folder to store the web page in the source folder
+    string folderPath = string(BASE) + "/IO/Source1/" + urlHash;
+
+    // Check if there is a folder and a zip file with the same name
+    if (std::filesystem::exists(folderPath) || std::filesystem::exists(folderPath + ".zip")) {
+        std::cout << "Folder or zip file already exists for URL: " << url << std::endl;
+        return;
+    }
+
+    std::filesystem::create_directories(folderPath);
+
+    // Perform the post request
+    std::string command = "curl -X POST -d '" + payload + "' " + url + " > " + folderPath + "/" + urlHash + ".txt";
+    std::system(command.c_str());
+
+    // Wait for the response file to be closed
+    while (!std::filesystem::exists(folderPath + "/" + urlHash + ".txt")) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout << "Waiting for response file to be closed" << std::endl;
+    }
+
+    // Rename the response file to the correct extension
+    try {
+        std::filesystem::rename(folderPath + "/" + urlHash + ".txt", folderPath + "/index.html");
+    } catch (std::filesystem::filesystem_error& e) {
+        std::cerr << "Error renaming file: " << e.what() << std::endl;
+        return;
+    }
+
+    // zip the folder contents
+    zipFolderContents(folderPath);
+}
+
 
 /**
  * @brief Request a web content and store it in the source folder
@@ -61,7 +109,7 @@ void WebPageRequester::requestWebContent(const string &url)
  * @param url 
  * @param isRoot
  */
-/* void WebPageRequester::requestContentFromUrl(string url, bool isRoot)
+void WebPageRequester::requestContentFromUrl(string url, bool isRoot)
 {
     // Create a hash of the URL to use as the folder name
     string urlHash = getUrlAsHash(url);
@@ -140,7 +188,8 @@ void WebPageRequester::requestWebContent(const string &url)
 
     // Rename the response file to the correct extension
     try {
-        std::filesystem::rename(folderPath + "/" + urlHash + ".txt", folderPath + "/" + urlHash + fileExtension);
+        std::filesystem::rename(folderPath + "/" + urlHash + ".txt", folderPath + "/index" + fileExtension);
+        // std::filesystem::rename(folderPath + "/" + urlHash + ".txt", folderPath + "/" + urlHash + fileExtension);
     } catch (std::filesystem::filesystem_error& e) {
         std::cerr << "Error renaming file: " << e.what() << std::endl;
         return;
@@ -151,7 +200,7 @@ void WebPageRequester::requestWebContent(const string &url)
     curl_global_cleanup();
 
     // If the content type is text/html
-    if (contentType == "text/html" && isRoot) {
+   /*  if (contentType == "text/html" && isRoot) {
         std::ifstream responseFile(folderPath + "/" + urlHash + fileExtension);
         std::string responseHtml((std::istreambuf_iterator<char>(responseFile)), std::istreambuf_iterator<char>());
         responseFile.close();
@@ -176,7 +225,7 @@ void WebPageRequester::requestWebContent(const string &url)
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             std::cout << "Waiting for response file to be closed" << std::endl;
         }
-    }
+    } */
 
     // Save the headers to a file in to the created folder
     std::ofstream headersFile(folderPath + "/headers.txt");
@@ -200,13 +249,13 @@ void WebPageRequester::requestWebContent(const string &url)
         return;
     }
 }
- */
+ 
 /**
  * @brief Request a web content and store it in the source folder
  * 
  * @param url
  */
-void WebPageRequester::requestContentFromUrl(string url, bool isRoot)
+/*void WebPageRequester::requestContentFromUrl(string url, bool isRoot)
 {
     // Create a hash of the URL to use as the folder name
     string urlHash = getUrlAsHash(url);
@@ -250,7 +299,7 @@ void WebPageRequester::requestContentFromUrl(string url, bool isRoot)
         std::cerr << "Error deleting folder: " << e.what() << std::endl;
         return;
     }
-}
+}*/
 
 /**
  * @brief Get the Url As Hash object
@@ -431,8 +480,58 @@ string WebPageRequester::getExtensionFromContentType(string contentType)
         return ".xwd";
     } else if (contentType == "image/x-icon") {
         return ".ico";
+    } else if (contentType == "text/plain") {
+        return ".txt";
+    } else if (contentType == "application/json") {
+        return ".json";
+    } else if (contentType == "application/xml") {
+        return ".xml";
+    } else if (contentType == "application/pdf") {
+        return ".pdf";
+    } else if (contentType == "application/zip") {
+        return ".zip";
+    } else if (contentType == "application/x-tar") {
+        return ".tar";
+    } else if (contentType == "application/x-gzip") {
+        return ".gz";
+    } else if (contentType == "application/x-bzip2") {
+        return ".bz2";
+    } else if (contentType == "application/x-xz") {
+        return ".xz";
+    } else if (contentType == "application/x-lzip") {
+        return ".lz";
+    } else if (contentType == "application/x-lzma") {
+        return ".lzma";
+    } else if (contentType == "application/x-lz4") {
+        return ".lz4";
+    } else if (contentType == "application/x-lzop") {
+        return ".lzo";
+    } else if (contentType == "application/x-snappy-framed") {
+        return ".sz";
+    } else if (contentType == "application/x-zstd") {
+        return ".zst";
+    } else if (contentType == "application/x-7z-compressed") {
+        return ".7z";
+    } else if (contentType == "application/x-rar-compressed") {
+        return ".rar";
+    } else if (contentType == "application/x-iso9660-image") {
+        return ".iso";
+    } else if (contentType == "application/x-nrg") {
+        return ".nrg";
+    } else if (contentType == "application/x-cd-image") {
+        return ".img";
+    } else if (contentType == "application/x-mdf") {
+        return ".mdf";
+    } else if (contentType == "application/x-iso") {
+        return ".iso";
+    } else if (contentType == "application/x-cd-image") {
+        return ".img";
+    } else if (contentType == "application/x-nrg") {
+        return ".nrg";
+    } else if (contentType == "application/x-mdf") {
+        return ".mdf";
     }
-    
+
     return "";
 }
 

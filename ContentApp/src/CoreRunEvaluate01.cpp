@@ -892,9 +892,13 @@ void CoreRunEvaluate01::validateWebRequest(string filePath)
 		document.Parse(webRequestContent.c_str());
 		// get the path key
 		string path = document["path"].GetString();
+		// get the method key
+		string method = document["method"].GetString();
+		// get the payload key
+		string payload = document["payload"].GetString();
 		WebPageRequester webPageRequester;
 		// Perform the web requester requestWebContent in a separate thread
-		std::thread webRequestThread(&WebPageRequester::requestWebContent, &webPageRequester, path);
+		std::thread webRequestThread(&WebPageRequester::requestWebContent, &webPageRequester, path, method, payload);
 		// Execute the thread in parallel
 		webRequestThread.detach();
 

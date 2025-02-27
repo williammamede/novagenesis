@@ -6,6 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { GraphAppService } from './graph-app.service';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { MatCardModule } from '@angular/material/card';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @NgModule({
     declarations: [
@@ -15,7 +16,8 @@ import { MatCardModule } from '@angular/material/card';
         BrowserModule,
         HttpClientModule,
         NgxGraphModule,
-        MatCardModule
+        MatCardModule,
+        MatProgressBarModule
     ],
     exports: [
         GraphAppComponent

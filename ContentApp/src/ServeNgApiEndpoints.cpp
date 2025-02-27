@@ -42,6 +42,8 @@
 #define BASE std::getenv("BASE")
 #endif
 
+#include "AiConnector.h"
+
 // Constant for status codes ok
 const auto OKAY = status_codes::OK;
 
@@ -75,8 +77,8 @@ void ServeNgApiEndpoints::start()
     http_listener listener(uri);
     listener.open().wait();
 
-    // Handle incoming requests.
-    uclog << U("Setting up.") << endl;
+    // Handle incoming get requests.
+    uclog << U("Setting up Get API.") << endl;
     listener.support(methods::GET, [this](http_request req)
         {
             req.headers().add(U("Access-Control-Allow-Origin"), U("*"));
@@ -127,14 +129,44 @@ void ServeNgApiEndpoints::start()
                 respond(req, OKAY, getLifecycle());
             } else if (http_uri_sub_dir == U("/getNodeRelations")) {
                 respond(req, OKAY, getNodeRelations());
+            } else if (http_uri_sub_dir == U("/getNodeRelationsFromAI")) {
+                respond(req, OKAY, getNodeRelationsFromAI());
             }
             // Else it must be a web page request
             else {
                 auto path = http_uri_sub_dir.substr(1);
                 uclog << U("Received request for WEB Page: ") << path << endl;
-                handleWebRequest(req, path);
+                handleWebRequest(req, path, "GET", "");
             }
         });
+
+    uclog << U("Setting up Post API.") << endl;
+    listener.support(methods::POST, [this](http_request req)
+        {
+            req.headers().add(U("Access-Control-Allow-Origin"), U("*"));
+            req.headers().add(U("Allow"), U("GET, POST, OPTIONS"));
+            req.headers().add(U("Access-Control-Allow-Origin"), U("*"));
+            req.headers().add(U("Access-Control-Allow-Methods"), U("GET, POST, OPTIONS"));
+
+            auto http_uri_sub_dir = req.request_uri().path();
+            uclog << U("Received POST request for: ") << http_uri_sub_dir << endl;
+            auto path = http_uri_sub_dir.substr(1);
+            uclog << U("Received Post request for WEB Page: ") << path << endl;
+            // The payload from the request
+            std::string payload;
+            try {
+                payload = req.extract_string().get();
+            } catch (const std::exception &e) {
+                uclog << U("Error extracting string: ") << e.what() << endl;
+                respond(req, status_codes::BadRequest, json::value::string(U("Invalid payload")));
+                return;
+            }
+            uclog << U("Received payload: ") << payload << endl;
+            handleWebRequest(req, path, "POST", payload);
+        });
+
+            
+    
 
     // Wait while the listener does the heavy lifting.
     uclog << U("Waiting for incoming connection...") << endl;
@@ -160,11 +192,18 @@ void ServeNgApiEndpoints::respondImage(http_request &request, const status_code 
     utility::string_t file = imagePath;
     *fileStream = Concurrency::streams::fstream::open_ostream(file, std::ios::out | std::ios::trunc).get();
     request.set_body(*fileStream,  */
+    if (!std::filesystem::exists(imagePath)) {
+        uclog << U("Image not found: ") << imagePath << endl;
+        request.reply(status_codes::NotFound, U("Image not found"));
+        return;
+    }
+
     http_response response(status);
     response.headers().add(U("Content-Type"), U("image/png"));
     response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
-    
+       
     auto fileStream = std::make_shared<Concurrency::streams::istream>(Concurrency::streams::file_stream<uint8_t>::open_istream(imagePath).get());
+
     response.set_body(*fileStream);
     
     request.reply(response);
@@ -181,7 +220,7 @@ void ServeNgApiEndpoints::replyImage(const http_request &request, const status_c
  * @param request The request
  * @param path The path of the web page
  */
-void ServeNgApiEndpoints::handleWebRequest(const http_request &request, const string &path)
+void ServeNgApiEndpoints::handleWebRequest(const http_request &request, const string &path, const string &method, const string &payload)
 {
     std::string hashUrl = getUrlAsHash(path);
     std::string response;
@@ -203,8 +242,17 @@ void ServeNgApiEndpoints::handleWebRequest(const http_request &request, const st
             }
         }
 
-        // Read the index.html file
-        std::ifstream file(tempDir + "/index.html");
+        // Read the index file with any extension
+        std::ifstream file;
+        for (const auto &entry : std::filesystem::directory_iterator(tempDir)) {
+            if (entry.path().filename().string().find("index.") == 0) {
+            file.open(entry.path());
+            break;
+            }
+        }
+        if (!file.is_open()) {
+            throw std::runtime_error("Index file not found in the temporary directory.");
+        }
         std::stringstream buffer;
         buffer << file.rdbuf();
         file.close();
@@ -218,7 +266,7 @@ void ServeNgApiEndpoints::handleWebRequest(const http_request &request, const st
     } else {
         // The page is not published yet, so request it from the NG network if path diferent from favicon.ico
         if(strcmp(path.c_str(), "favicon.ico") != 0) {
-            createNGPageRequest(path);
+            createNGPageRequest(path, method, payload);
         }
 
         // Respond with the errorPage.html from Repository1
@@ -241,12 +289,12 @@ void ServeNgApiEndpoints::handleWebRequest(const http_request &request, const st
  * 
  * @param path The path of the web page
  */
-void ServeNgApiEndpoints::createNGPageRequest(const string &path)
+void ServeNgApiEndpoints::createNGPageRequest(const string &path, const string &method, const string &payload)
 {
     // Create a file in source1 with the path of the web page
     std::string filePath = std::string(BASE) + "/IO/Repository1/webRequest" + getUrlAsHash(path) + ".json";
     std::ofstream file(filePath);
-    file << "{\"path\": \"" << path << "\"}";
+    file << "{\"path\": \"" << path << "\", \"method\": \"" << method << "\", \"payload\": \"" << payload << "\"}";
     file.close();
 }
 
@@ -441,6 +489,22 @@ web::json::value ServeNgApiEndpoints::getNodeRelations()
         }
     }
 
+    return output;
+}
+
+/**
+ * @brief Get the node relations based onm bindings and system tuples from AI
+ * 
+ * @return web::json::value The node relations
+ */
+web::json::value ServeNgApiEndpoints::getNodeRelationsFromAI()
+{
+    web::json::value output;
+    // Call the AIConnector analyzeSystemTuples method and respond with the received json
+    AiConnector aiConnector;
+    std::string response = aiConnector.analyzeSystemTuples();
+    output = json::value::parse(response);
+    
     return output;
 }
 

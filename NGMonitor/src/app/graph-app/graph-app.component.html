@@ -1,25 +1,46 @@
-<p>Name resolution graph</p>
+<h2>Name Resolution Graph</h2>
+<mat-progress-bar mode="indeterminate" *ngIf="!graphLoaded"></mat-progress-bar>
 <mat-card>
-    <!-- should show a label for each node -->
-    <div class="container">
-      <ngx-graph
-        class="chart-container"
-        [view]="[800, 400]"
-        [showMiniMap]="false"
-        [links]="links"
-        [nodes]="nodes">
-        <!-- <ng-template #nodeTemplate let-node>
-          <svg:g class="node" ngx-tooltip [tooltipPlacement]="'top'" [tooltipType]="'tooltip'">
-            <svg:circle
-              [attr.r]="node.value"
-              [attr.fill]="node.color"
-              [attr.cx]="node.x"
-              [attr.cy]="node.y"
-              [attr.transform]="node.transform"
-            ></svg:circle>
-            <title>{{ node.label }}</title>
-          </svg:g>
-        </ng-template> -->
-      </ngx-graph>
-    </div>
+  <!-- should show a label for each node -->
+  <div class="container">
+    <ngx-graph
+    class="chart-container"
+    layout="colaForceDirected"
+    [view]="[1280, 760]"
+    [showMiniMap]="false"
+    [links]="links"
+    [nodes]="nodes">
+    <!-- [clusters]="clusters"
+    > -->
+    <ng-template #defsTemplate>
+      <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">
+        <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
+      </svg:marker>
+    </ng-template>
+
+    <ng-template #clusterTemplate let-cluster>
+      <svg:g class="node cluster">
+        <svg:rect rx="5" ry="5" [attr.width]="cluster.dimension.width" [attr.height]="cluster.dimension.height" [attr.fill]="cluster.data.color" />
+        <svg:text alignment-baseline="central" [attr.x]="cluster.dimension.width / 2" [attr.y]="-10" text-anchor="middle">{{cluster.label}}</svg:text>
+      </svg:g>
+    </ng-template>
+
+    <ng-template #nodeTemplate let-node>
+      <svg:circle [attr.cx]="node.dimension.width / 2" [attr.cy]="node.dimension.height / 2" [attr.r]="10" [attr.fill]="node.data.color" (click)="node.data.showLabel = !node.data.showLabel"></svg:circle>
+      <svg:text *ngIf="node.data.showLabel" alignment-baseline="central" [attr.x]="node.dimension.width / 2 + 15" [attr.y]="node.dimension.height / 2" [attr.text-anchor]="node.data.showLabel ? 'start' : 'middle'">{{node.label}}</svg:text>
+    </ng-template>
+
+    <ng-template #linkTemplate let-link>
+      <svg:g class="edge">
+        <svg:path class="line" stroke-width="2" marker-end="url(#arrow)">
+        </svg:path>
+        <svg:text class="edge-label" text-anchor="middle">
+          <textPath class="text-path" [attr.href]="'#' + link.id" [style.dominant-baseline]="link.dominantBaseline" startOffset="50%">
+            {{link.label}}
+          </textPath>
+        </svg:text>
+      </svg:g>
+    </ng-template>
+    </ngx-graph>
+  </div>
 </mat-card>

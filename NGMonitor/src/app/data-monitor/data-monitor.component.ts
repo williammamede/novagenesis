@@ -16,7 +16,7 @@ export class DataMonitorComponent implements OnInit {
   protected offeredServices: string[] = [];
   protected transferedData: Messages[] = [];
   protected receivedData: Messages[] = [];
-  displayedColumns: string[] = ['fileName', 'time', 'source', 'size'];
+  displayedColumns: string[] = ['fileName', 'time', 'source'];
 
   ngOnInit(): void {
     setInterval(() => {
@@ -44,9 +44,22 @@ export class DataMonitorComponent implements OnInit {
     });
   }
 
+  getIconForFile(fileName: string) {
+    if (fileName.includes('.jpg') || fileName.includes('.png')) {
+      return 'image';
+    }
+    if (fileName.includes('.txt')) {
+      return 'description';
+    }
+    if (fileName.includes('.pdf')) {
+      return 'picture_as_pdf';
+    }
+    return 'insert_drive_file';
+  }
+
   showData(data: Messages) {
     const dialogRef = this.dialog.open(DataViewerDialogComponent, {
-      width: '80%',
+      width: '50%',
       height: '80%',
       data: data
     });

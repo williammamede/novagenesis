@@ -58,6 +58,8 @@
 
 #include <curl/curl.h>
 
+#include "AiConnector.h"
+
 using namespace std;
 using namespace web::http::experimental::listener;
 using namespace web::http;

@@ -79,14 +79,15 @@ private:
     void respond(const http_request &request, const status_code &status, const json::value &response);
     void respondImage(http_request &request, const status_code &status, const string &imagePath);
     void replyImage(const http_request &request, const status_code &status, const concurrency::streams::istream &imageStream);
-    void handleWebRequest(const http_request &request, const string &url);
-    void createNGPageRequest(const string &url);
+    void handleWebRequest(const http_request &request, const string &url, const string &method, const string &payload);
+    void createNGPageRequest(const string &url, const string &method, const string &payload);
     web::json::value getBindingsReport(string requestedBlock);
     web::json::value getServiceOffers();
     web::json::value getPublishedMessages();
     web::json::value getReceivedMessages();
     web::json::value getLifecycle();
     web::json::value getNodeRelations();
+    web::json::value getNodeRelationsFromAI();
     string getUrlAsHash(string url);
     // static write and header callbacks
     static size_t WriteCallback(char *contents, size_t size, size_t nmemb, std::string *response);

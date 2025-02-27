@@ -205,6 +205,8 @@ add_executable(ContentApp
         ContentApp/src/ServeNgApiEndpoints.h
         ContentApp/src/WebPageRequester.cpp
         ContentApp/src/WebPageRequester.h
+        ContentApp/src/AiConnector.cpp
+        ContentApp/src/AiConnector.h
         ContentApp/src/execContentApp.cpp)
 
 target_link_libraries(ContentApp LINK_PRIVATE Common)
