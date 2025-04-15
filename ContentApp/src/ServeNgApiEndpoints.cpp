@@ -222,7 +222,7 @@ void ServeNgApiEndpoints::replyImage(const http_request &request, const status_c
  */
 void ServeNgApiEndpoints::handleWebRequest(const http_request &request, const string &path, const string &method, const string &payload)
 {
-    std::string hashUrl = getUrlAsHash(path);
+    std::string hashUrl = getUrlAsHash(path + method);
     std::string response;
     std::string headers;
     if (isPagePublished(hashUrl)) {
@@ -292,7 +292,7 @@ void ServeNgApiEndpoints::handleWebRequest(const http_request &request, const st
 void ServeNgApiEndpoints::createNGPageRequest(const string &path, const string &method, const string &payload)
 {
     // Create a file in source1 with the path of the web page
-    std::string filePath = std::string(BASE) + "/IO/Repository1/webRequest" + getUrlAsHash(path) + ".json";
+    std::string filePath = std::string(BASE) + "/IO/Repository1/webRequest" + getUrlAsHash(path + method) + ".json";
     std::ofstream file(filePath);
     file << "{\"path\": \"" << path << "\", \"method\": \"" << method << "\", \"payload\": \"" << payload << "\"}";
     file.close();

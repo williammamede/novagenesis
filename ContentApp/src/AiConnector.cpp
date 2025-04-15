@@ -34,7 +34,8 @@
 #endif
 
 #define GEMINE_AI_API_KEY std::getenv("GOOGLE_API_KEY")
-#define GEMINE_AI_URL "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent"
+#define GEMINE_AI_URL_1_5 "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent"
+#define GEMINE_AI_URL "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 
 #include <string>
 #include <curl/curl.h>

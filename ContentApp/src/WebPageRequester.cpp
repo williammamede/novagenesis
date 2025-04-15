@@ -67,7 +67,7 @@ void WebPageRequester::requestWebContent(const string &url, const string &method
 void WebPageRequester::postRequestContentFromUrl(string url, string payload)
 {
     // Create a hash of the URL to use as the folder name
-    string urlHash = getUrlAsHash(url);
+    string urlHash = getUrlAsHash(url + "POST");
 
     // Create the folder to store the web page in the source folder
     string folderPath = string(BASE) + "/IO/Source1/" + urlHash;
@@ -81,7 +81,8 @@ void WebPageRequester::postRequestContentFromUrl(string url, string payload)
     std::filesystem::create_directories(folderPath);
 
     // Perform the post request
-    std::string command = "curl -X POST -d '" + payload + "' " + url + " > " + folderPath + "/" + urlHash + ".txt";
+    std::string command = "curl -L -X POST '" + url + "' -H 'Content-Type: application/json' --data-raw '" + payload + "' > " + folderPath + "/" + urlHash + ".txt";
+
     std::system(command.c_str());
 
     // Wait for the response file to be closed
@@ -109,6 +110,7 @@ void WebPageRequester::postRequestContentFromUrl(string url, string payload)
  * @param url 
  * @param isRoot
  */
+/*
 void WebPageRequester::requestContentFromUrl(string url, bool isRoot)
 {
     // Create a hash of the URL to use as the folder name
@@ -226,7 +228,7 @@ void WebPageRequester::requestContentFromUrl(string url, bool isRoot)
             std::cout << "Waiting for response file to be closed" << std::endl;
         }
     } */
-
+/*
     // Save the headers to a file in to the created folder
     std::ofstream headersFile(folderPath + "/headers.txt");
     headersFile << headers;
@@ -248,17 +250,17 @@ void WebPageRequester::requestContentFromUrl(string url, bool isRoot)
         std::cerr << "Error deleting folder: " << e.what() << std::endl;
         return;
     }
-}
+} */
  
 /**
  * @brief Request a web content and store it in the source folder
  * 
  * @param url
  */
-/*void WebPageRequester::requestContentFromUrl(string url, bool isRoot)
+void WebPageRequester::requestContentFromUrl(string url, bool isRoot)
 {
     // Create a hash of the URL to use as the folder name
-    string urlHash = getUrlAsHash(url);
+    string urlHash = getUrlAsHash(url + "GET");
 
     // Create the folder to store the web page in the source folder
     string folderPath = string(BASE) + "/IO/Source1/" + urlHash;
@@ -272,7 +274,8 @@ void WebPageRequester::requestContentFromUrl(string url, bool isRoot)
     std::filesystem::create_directories(folderPath);
 
     // Get the page using wget with all its dependencies, not recursive
-    std::string wgetCommand = "wget -p -k -E -H -nd -P " + folderPath + " " + url;
+    //std::string wgetCommand = "wget -p -k -E -H -nd -P " + folderPath + " " + url;
+    std::string wgetCommand = "wget -E -nd -P " + folderPath + " " + url;
     FILE* wgetPipe = popen(wgetCommand.c_str(), "r");
     if (wgetPipe) {
         char buffer[128];
@@ -299,7 +302,7 @@ void WebPageRequester::requestContentFromUrl(string url, bool isRoot)
         std::cerr << "Error deleting folder: " << e.what() << std::endl;
         return;
     }
-}*/
+}
 
 /**
  * @brief Get the Url As Hash object

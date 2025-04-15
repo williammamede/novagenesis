@@ -49,10 +49,10 @@ export class GraphAppComponent implements OnInit {
   ngOnInit(): void {
 
     this.graphAppService.getData().subscribe(data => {
-      this.data = JSON.stringify(data);
-      this.buildEdgesFromData(data);
-      this.buildNodesFromData(data);
-      this.buildClustersFromData(data);
+      this.data = JSON.stringify(data[0]);
+      this.buildEdgesFromData(data[0]);
+      this.buildNodesFromData(data[0]);
+      this.buildClustersFromData(data[0]);
       this.graphLoaded = true;
     });
   }

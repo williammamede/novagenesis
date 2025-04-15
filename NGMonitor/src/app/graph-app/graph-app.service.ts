@@ -11,7 +11,14 @@ export class GraphAppService {
     SERVER_ADRESS = '/api/getNodeRelationsFromAI';
 
     getData(): Observable<any> {
-        return this.http.get(`${this.SERVER_ADRESS}`)
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json'
+            }),
+            timeout: 600000 // 5 seconds timeout
+        };
+
+        return this.http.get(`${this.SERVER_ADRESS}`, httpOptions)
             .pipe(
                 retry(3),
                 catchError(this.handleError)
